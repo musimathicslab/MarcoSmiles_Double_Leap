@@ -36,7 +36,7 @@ public class TrainingScript : MonoBehaviour
 
     private void Start()
     {
-        //recording_Text.text = RECORD_COUNT_DEF.ToString();
+        recording_Text.text = RECORD_COUNT_DEF.ToString();
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class TrainingScript : MonoBehaviour
     /// <summary>
     /// Inizializza il numero di oggetti da salvare per ogni posizione
     /// </summary>
-    int record_count = 0;
+    int record_count = RECORD_COUNT_DEF;
 
     /// <summary>
     /// Definisce il tempo di attesa del coutdown iniziale

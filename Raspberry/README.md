@@ -62,4 +62,3 @@
      ```
     LD_PRELOAD=./libLeap.so MarcoSmiles5.0 Sample.py
      ```
-8. Prova

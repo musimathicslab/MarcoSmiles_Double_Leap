@@ -1,6 +1,8 @@
 import Leap
 import math
 import sys
+from predict import load_utils, predict
+import pandas as pd
 
 
 # https://developer-archive.leapmotion.com/documentation/python/devguide/Leap_Controllers.html
@@ -15,20 +17,23 @@ class LeapEventListener(Leap.Listener):
     def on_frame(self, controller):
         frame = controller.frame()
 
-        features_values = []
         if not frame.hands.is_empty:
-            for hand in frame.hands:
+            features_values_left = []
+            features_values_right = []
 
-                # Check if there are two hands.
-                # Checking the type of the hand is important to build
-                # the features in this order [Left, Right]
+            for hand in frame.hands:
                 if len(frame.hands) == 2:
                     if hand.is_left:
-                        features_values = get_features(features_values, hand)
-
+                        features_values_left = get_features(features_values_left, hand)
                     elif hand.is_right:
-                        features_values = get_features(features_values, hand)
-        print(features_values)
+                        features_values_right = get_features(features_values_right, hand)
+
+            features_values = features_values_left + features_values_right
+            if len(features_values) != 0:
+                # Predict
+                features_values = pd.Series(features_values)
+                prediction = predict(features_values)
+                print(prediction)
 
 
 # This function take in input a hand and compute two values: FF and NFA
@@ -61,7 +66,9 @@ def grads(num):
 
 
 def main():
-    # Create a sample listener and controller
+    load_utils()
+
+    # Create a listener and controller
     listener = LeapEventListener()
     controller = Leap.Controller()
 

@@ -48,8 +48,7 @@ public class MS_LeapController : MonoBehaviour
         controller.Device += MS_LeapListener.OnLeapConnect;
 
         _GM.ShowConnectLeapPopup();
-        //script per stampa dati
-        //scriptDiAppoggio = new ScriptDiAppoggio();
+
     }
 
     // Update is called once per frame

@@ -1,24 +1,23 @@
-﻿/// <summary>
-/// Classe di testing, attualmente serve a raccogliere tutte le features in un array
-/// </summary>
-/// 
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
-public class TestingScript
-{
+
+/// <summary>
+/// Testing class, to get features.
+/// </summary>
+public class TestingScript{
 
     /// <summary>
-    /// Seleziona la feature corrente
+    /// Select current features.
     /// </summary>
-    /// <returns>Ritorna i valori della feature corrente</returns>
-    public static float[] GetCurrentFeatures()
-    {
+    /// <returns>Current features</returns>
+    public static float[] GetCurrentFeatures(){
 
         float[] current_features = new float[36];
 
+        // First device
         var left_hand = new DataToStore(
                  _GM.hand_L,
                  DatasetHandler.getFF(_GM.hand_L.Fingers[0], true),
@@ -45,7 +44,7 @@ public class TestingScript
             DatasetHandler.getNFA(_GM.hand_R.Fingers[2], _GM.hand_R.Fingers[3]),
             DatasetHandler.getNFA(_GM.hand_R.Fingers[3], _GM.hand_R.Fingers[4]));
 
-        //mano sinistra DISPOSITIVO 2 
+        // Second device
         var left_hand2 = new DataToStore(
             _GM.secondDeviceHand_L,
             DatasetHandler.getFF(_GM.secondDeviceHand_L.Fingers[0], true),
@@ -59,7 +58,7 @@ public class TestingScript
             DatasetHandler.getNFA(_GM.secondDeviceHand_L.Fingers[2], _GM.secondDeviceHand_L.Fingers[3]),
             DatasetHandler.getNFA(_GM.secondDeviceHand_L.Fingers[3], _GM.secondDeviceHand_L.Fingers[4]));
 
-        //  mano destra DISPOSITIVO 2
+
         var right_hand2 = new DataToStore(
             _GM.secondDeviceHand_R,
             DatasetHandler.getFF(_GM.secondDeviceHand_R.Fingers[0], true),
@@ -112,33 +111,6 @@ public class TestingScript
         current_features[33] = right_hand2.NFA2;
         current_features[34] = right_hand2.NFA3;
         current_features[35] = right_hand2.NFA4;
-
-        /*String[] dita = new String[5];
-        dita[0] = "pollice";
-        dita[1] = "indice";
-        dita[2] = "medio";
-        dita[3] = "anulare";
-        dita[4] = "mignolo";
-        //mio 
-        for (int i = 0; i < 5; i++)
-        {
-            Debug.Log("\n LEFT ---" + i + ": "+current_features[i]);
-            Debug.Log("LEFT"+dita[i]+"closed \n");
-
-        }
-        int j = 0;
-        for (int i = 9; i < 14; i++)
-        {
-            
-            Debug.Log("\n RIGHT ---" + i + ": " + current_features[i]);
-            if (current_features[i] > 150)
-            {
-                Debug.Log("RIgHT"+dita[j]+"closed \n");
-
-            }
-            j++;
-        }
-        */
 
         return current_features;
     }

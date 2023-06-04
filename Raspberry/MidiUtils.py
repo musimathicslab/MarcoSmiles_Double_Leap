@@ -12,7 +12,7 @@ import mido
 
 
 
-def Send_note_on(note, octave,velocity,midi_channel):
+def Send_message_midi(command, note, octave,velocity,midi_channel):
     
         #to print the note on display 
         note_print = ""
@@ -37,7 +37,7 @@ def Send_note_on(note, octave,velocity,midi_channel):
 
 
         
-        msg=mido.Message('note_on', note=msg_note, velocity=velocity)
+        msg=mido.Message(command, note=msg_note, velocity=velocity)
         print("MESSAGE SENT")
         print(msg.copy(channel=midi_channel))
 
@@ -56,7 +56,7 @@ def Send_note_on(note, octave,velocity,midi_channel):
 if __name__=="__main__":
 	mido.set_backend('mido.backends.portmidi')
 	print(mido.backend)
-	Send_note_on(60,0,105,0)
+	Send_message_midi('note_on',60,0,105,0)
 
 
 

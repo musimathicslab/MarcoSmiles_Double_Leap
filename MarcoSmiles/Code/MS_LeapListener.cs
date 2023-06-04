@@ -1,162 +1,79 @@
 ﻿using UnityEngine;
-
 using Leap;
 using Leap.Unity;
 using System.Collections.Generic;
+
 /// <summary>
-///  Gestisce la connessione del LeapMotion a Unity3d.
+/// This class handle the connection between LeapMotion and Unity3d.
+/// Useful to get hand objects from the device(s)
 /// </summary>
-public class MS_LeapListener : MonoBehaviour
-{
+public class MS_LeapListener : MonoBehaviour{
     public static bool Connected = false;
-    
 
     /// <summary>
-    /// Evento attivato all'esecuzione, se il leap rileva le mani.
+    /// Connection event of LeapMotion.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    public static void OnLeapConnect(object sender, DeviceEventArgs args)
-    {
-        //  stampa un messaggio di log
-        Debug.Log("Connesso");
+    public static void OnLeapConnect(object sender, DeviceEventArgs args){
+        Debug.Log("Connected");
         Connected = true;
     }
+
     /// <summary>
-    /// Evento attivato se il Leap Moton viene disconnesso
+    /// Disconnection event of LeapMotion.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    public static void OnLeapDisconnect(object sender, DeviceEventArgs args)
-    {
-        //  stampa un messaggio di log
-        Debug.Log("DISCONNESSO");
+    public static void OnLeapDisconnect(object sender, DeviceEventArgs args){
+        Debug.Log("Disconnected");
         Connected = false;
     }
-    /*
+
     /// <summary>
-    /// Rileva frame
+    /// Function to handle the frame of the first LeapMotion device.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="args"></param>
-    public static void OnFrame(object sender, FrameEventArgs args)
-    {
-        Debug.Log("Sono nell'onFrame del MS_LeapListener");
-        Frame frame = args.frame;
+    /// <param name="f">Frame received by the device</param>
+    public static void onFrameDisp1(Frame f){
+        Frame frame = f;
 
-        //  Se ci sono delle mani rilevate
-        if(frame.Hands.Count > 1)
-        {
-            Debug.Log("Sono nell'if del MS_LeapListener");
-            _GM.isActive = true;            //  deve suonare
-            //  qui attivi
+        // Check if both hands are detected by the LeapMotion device.
+        if (frame.Hands.Count > 1){
+            _GM.isActive = true;  //Must play
 
-            //  per ogni mano, sceglie se è dx o sx, e stampa i seguenti dati
-            //  DATI GENERICI:          dx o sx, tupla di coords (x,y,z) dal sensore leap, numero dita,
-            //  ROTAZIONI relative:     rotazione su asse-x (hand pitch), rotazione su asse-z (hand roll), rotazione su asse-y (hand yaw)
-            foreach (var hand in frame.Hands)
-            {
-                //  seleziona se è la mano destra
-
+            foreach (var hand in frame.Hands){
+                // Check what kind of hand it is
                 if (hand.IsRight)
                     _GM.hand_R = hand;
                 else if (hand.IsLeft)
                     _GM.hand_L = hand;
             }
-            Debug.Log("hand_l: "+_GM.hand_L);
-            Debug.Log("hand_l: " + _GM.hand_L);
-
+        }else{
+            _GM.isActive = false;
         }
-        else
-        {
-            Debug.Log("Sono nell'else del MS_LeapListener");
-            //  non ci sono delle mani rilevate
-            //  qui disattivi
-            _GM.isActive = false;           //  non deve suonare
-        }
-
     }
 
-    */
 
-    public static void onFrameDisp1(Frame f)
-    {
-       // Debug.Log("OnFrameDisp1");
+    /// <summary>
+    /// Function to handle the frame of the second LeapMotion device.
+    /// </summary>
+    /// <param name="f">Frame received by the device</param>
+    public static void onFrameDisp2(Frame f){
+
         Frame frame = f;
-        //  Se ci sono delle mani rilevate
-        //per assicurarsi che ci siano entrambe le mani 
-        if (frame.Hands.Count > 1) 
-        {
-            _GM.isActive = true;            //  deve suonare
-                                            //  qui attivi
+        // Check if both hands are detected by the LeapMotion device.
+        if (frame.Hands.Count > 1){
+            _GM.isActive = true; //Must play
 
-            //  per ogni mano, sceglie se è dx o sx, e stampa i seguenti dati
-            //  DATI GENERICI:          dx o sx, tupla di coords (x,y,z) dal sensore leap, numero dita,
-            //  ROTAZIONI relative:     rotazione su asse-x (hand pitch), rotazione su asse-z (hand roll), rotazione su asse-y (hand yaw)
-
-            foreach (var hand in frame.Hands)
-            {
-                //  seleziona se è la mano destra
-                if (hand.IsRight)
-                    _GM.hand_R = hand;
-                else if (hand.IsLeft)
-                    _GM.hand_L = hand;
-            }
-          //  Debug.Log("_GM.hand_L: " + _GM.hand_L);
-          //  Debug.Log("_GM.hand_R: " + _GM.hand_R);
-
-        }
-        else
-        {
-            //Debug.Log("Sono nell'else del MS_LeapController");
-            //  non ci sono delle mani rilevate
-            //  qui disattivi
-            _GM.isActive = false;           //  non deve suonare
-        }
-
-    }
-
-    public static void onFrameDisp2(Frame f)
-    {
-     //   Debug.Log("OnFrameDisp2");
-        Frame frame = f;
-        //  Se ci sono delle mani rilevate
-
-        //per assicurarsi che ci siano entrambe le mani 
-        //if (frame.Hands.Count > 1)
-        if (frame.Hands.Count > 1)
-        {
-            _GM.isActive = true;            //  deve suonare
-            //  qui attivi
-
-            //  per ogni mano, sceglie se è dx o sx, e stampa i seguenti dati
-            //  DATI GENERICI:          dx o sx, tupla di coords (x,y,z) dal sensore leap, numero dita,
-            //  ROTAZIONI relative:     rotazione su asse-x (hand pitch), rotazione su asse-z (hand roll), rotazione su asse-y (hand yaw)
-
-                foreach (var hand in frame.Hands)
-                {
-                    //  seleziona se è la mano destra
+                foreach (var hand in frame.Hands){
+                    // Check what kind of hand it is
                     if (hand.IsRight)
                         _GM.secondDeviceHand_R = hand;
                     else if (hand.IsLeft)
                         _GM.secondDeviceHand_L = hand;
                 }
-              //  Debug.Log("secondDeviceHand_R: " + _GM.secondDeviceHand_R);
-              //  Debug.Log("secondDeviceHand_L: " + _GM.secondDeviceHand_L);
-            
+        }else{
+            _GM.isActive = false;
         }
-        else
-        {
-            //Debug.Log("Sono nell'else del MS_LeapController");
-            //  non ci sono delle mani rilevate
-            //  qui disattivi
-            _GM.isActive = false;           //  non deve suonare
-        }
-
     }
-
-
-
-
-
 }

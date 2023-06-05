@@ -9,145 +9,156 @@ using System.IO;
 using System.Collections;
 
 /// <summary>
-/// Game Master Contiene lo stato dell'applicazione.
+/// Game Master that contains the state of the application.
 /// </summary>
-public class _GM : MonoBehaviour
-{
+public class _GM : MonoBehaviour{
+
     TrainingScript ThatTrainer;
-
-
-
     public int previousclickedKey = 0;
     public int k = 1;
     public int counter = 0;
     public int[] Mylabel = new int[25];
 
     /// <summary>
-    /// Flag necessario per sapere se il leap motion è connesso
+    /// Flag LeapMotion device connected.
     /// </summary>
     public static bool IsLeapConnected = false;
 
     /// <summary>
-    /// Bottone preseente nel main menu per passare a scena "PlayScene"
+    /// Button "PlayScene".
     /// </summary>
     private Button playButton;
 
     /// <summary>
-    /// Istanza della classe trainer, utilizzata esclusvamente nella scena di training
+    /// Class instance used during training scene.
     /// </summary>
     public TrainingScript trainer;
+
     /// <summary>
-    /// Dati statici della mano destra
+    /// Right hand first device.
     /// </summary>
     public static Hand hand_R;
+
     /// <summary>
-    /// Dati statici della mano sinistra
+    /// Left hand first device.
     /// </summary>
     public static Hand hand_L;
 
     /// <summary>
-    /// Dati statici della mano destra del secondo device
+    /// Right hand second device.
     /// </summary>
     public static Hand secondDeviceHand_R;
+
     /// <summary>
-    /// Dati statici della mano sinistra del secondo device
+    /// Left hand second device.
     /// </summary>
     public static Hand secondDeviceHand_L;
 
     /// <summary>
-    /// Istanza della classe di testing per le matrici, utilizzata esclusivamente nella scena di testing
+    /// Class instance used during ttesting scene.
     /// </summary>
     public ConfusionTestingScript tester;
 
     /// <summary>
-    /// Viene usata solo nella scena di training per salvare nel dataset
+    /// Used in training scene to save the dataset.
     /// </summary>
     public static List<Position> list_posizioni;
+
     /// <summary>
-    /// Contiene una lista di indici, che rappresentano le note allenate (0-23)
+    /// Used to contain the trained notes (0-23)
     /// </summary>
     public static List<int> trainedNotes;
 
     /// <summary>
-    /// true se ci sono le mani, altrimenti false. lo script ProceduralAudioOscillator.cs osserva questa variabile per decidere se deve suonare 
+    /// true if there are hands, otherwise false. the script ProceduralAudioOscillator.cs looks at this variable to decide whether it should play
     /// </summary>
     public static bool isActive = false;
+
     /// <summary>
-    /// Attualmente le features sono floats, risolviamo sto problemo
+    ///
     /// </summary>
     public static float[] current_Features;
+
     /// <summary>
-    /// Indice della nota corrente da suonare, � letta da PCMOscillator
+    /// Index current note, read by PCMOscillator.
     /// </summary>
     public static int indexPlayingNote;
+
     /// <summary>
-    /// Indice della nota precedentemente suonata nel fixed update precedente
+    /// Index previous note.
     /// </summary>
     public static int indexPreviousNote;
 
-
     /// <summary>
-    /// Variabile contenente riferimento al pannello di popup
+    /// Popup panel.
     /// </summary>
     public GameObject PopupPanel;
+
     /// <summary>
-    /// Variabile contenente riferimento al pannello di popup di connessione leap
+    /// Leap connection popup.
     /// </summary>
     public static GameObject ConnectLeapPanel;
 
-    //  Interfaccia. Per sapere se � stato fatto Learn su configurazione selezionata
+    /// Interface. Learn on selected configuration
     /// <summary>
-    /// Gameobject contenente immagine che indica che � stato fatto Learn per la conf. selezionata. (TRAINING SCENE)                           
+    /// GameObject containing image indicating that Learn was made for the selected conf. (TRAINING SCENE)
     /// </summary>
     public GameObject ConfLearn;
+
     /// <summary>
-    /// Gameobject contenente immagine che indica che NON � stato fatto Learn per la conf. selezionata. (TRAINING SCENE)
+    /// GameObject containing image indicating that Learn was not made for the selected conf. (TRAINING SCENE)
     /// </summary>
     public GameObject ConfNotLearn;
+
     /// <summary>
-    /// Gameobject contenente la data dell'ultimo Learn per la conf. selezionata. (TRAINING SCENE)
+    /// GameObject containing the date of the last Learn for the selected conf. (TRAINING SCENE)
     /// </summary>
     public GameObject DateLatestLearning;
 
-    //  Variabili animazione loading circle
+    //  Loading circle animation.
     /// <summary>
-    /// Gameobject contenente l'animazione
+    /// GameObject loading animation.
     /// </summary>
     public GameObject LoadingCircle;
+
     /// <summary>
-    /// Icona per l'animazione
+    /// Animation icon.
     /// </summary>
     public RectTransform mainIcon;
+
     /// <summary>
-    /// Intervallo di tempo per l'animazione di caricamento
+    /// Time slice loading animation.
     /// </summary>
     public static float timeStep = 0.1f;
+
     /// <summary>
-    /// Angolo di rotazione per l'animazione di caricamento
+    /// Rotation angle for loading animation.
     /// </summary>
     public static float oneStepAngle = -36;
     float startTime;
 
     /// <summary>
-    /// Testo contenente il nome della Configurazione (cartella) selezionata
+    /// Configuration selected.
     /// </summary>    
     public Text SelectedDatasetText;
+
     /// <summary>
-    /// Enum per le scene unity esistenti nella build
+    /// Unity scenes.
     /// </summary>
-    private enum SceneEnum
-    {
+    private enum SceneEnum{
         MainPage,
         PlayScene,
         TrainingScene,
         TestingScene
     }
+
     /// <summary>
-    /// Variabile per tenere traccia della scena corrente
+    /// Current scene.
     /// </summary>
     private SceneEnum currSceneEnum;
+
     /// <summary>
-    /// Oggetto scena, utilizzato per modificare la variabile currSceneEnum
+    /// Scene object to modify current scene.
     /// </summary>
     private Scene currentScene;
     private GameObject pauseButton;
@@ -158,236 +169,181 @@ public class _GM : MonoBehaviour
     #region UNITY METH
 
     /// <summary>
-    /// Chiamato quando viene inizializzato un oggetto contenente lo script _GM.cs
+    /// Called when the GM object is initialised.
     /// </summary>
-    private void Awake()
-    {
+    private void Awake(){
         pauseButton = GameObject.Find("PauseButton");
         trainer = new TrainingScript();
 
         /*
-         * In unity, possono essere caricati nella build solo determinati tipi di file. File .txt vengono copiati all'interno della cartella 
-         * della build.
-         * In questo modo riusciamo ad avere lo script .py (che in questo momento � un file .txt) all'interno della build.
-         * Dunque, leggiamo il file .txt dalla cartella Resources, e usaando il metodo SavePy, salviamo lo script letto dal file .txt
-         * in un file ad estensione .py. Questo file potr� poi essere lanciato su linea di comando.    
+         * In Unity, only certain file types can be loaded into the build. .txt files are copied into the folder of the build.
+         * This way we can have the .py script (which is currently a .txt file) inside the build.
+         * So, we read the .txt file from the Resources folder, and using the SavePy method, we save the script read from the .txt file
+         * into a file with the extension .py. This file can then be launched on the command line.
          */
 
-        string nameFile = "ML";                                         //  Nome dello script python. 
-        var MLFile = Resources.Load<TextAsset>("Text/" + nameFile);     //  Carica lo script dalla cartella Resources di Unity(file .txt)
-        FileUtils.SavePy(MLFile.bytes, MLFile.name);                    //  Converte il file .txt in script .py
+        string nameFile = "ML";                                         //  Python script file name.
+        var MLFile = Resources.Load<TextAsset>("Text/" + nameFile);     //  Get script from resource folder (file .txt)
+        FileUtils.SavePy(MLFile.bytes, MLFile.name);                    //  Convert .txt in script .py
 
-        currentScene = SceneManager.GetActiveScene();                   //  Prende la scena correntemente attiva
+        currentScene = SceneManager.GetActiveScene();                   // Get active scene.
         Debug.Log("********CurrentScene" + SceneManager.GetActiveScene().name);
 
-        switch (currentScene.buildIndex)
-        {
+        switch (currentScene.buildIndex){
             case (0):
                 currSceneEnum = SceneEnum.MainPage;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
             case (1):
                 currSceneEnum = SceneEnum.PlayScene;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
             case (2):
                 currSceneEnum = SceneEnum.TrainingScene;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
             case (3):
                 currSceneEnum = SceneEnum.TestingScene;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
         }
 
-        //  Caso in cui la scena corrente � la scena mainpage(Mainpage)
-        if (currSceneEnum == SceneEnum.MainPage)
-        {
-        
+        //  Current scene Main Page
+        if (currSceneEnum == SceneEnum.MainPage){}
+
+        //  Current scene Play
+        if (currSceneEnum == SceneEnum.PlayScene){
+            TestML.Populate();
         }
 
-        //  Caso in cui la scena corrente � la scena per suonare (PlayScene)
-        if (currSceneEnum == SceneEnum.PlayScene)
-        {
-            TestML.Populate();                                              //  Effettua il caricamento dei file necessari per la scena PlayScene
-
+        // Current scene Training
+        if (currSceneEnum == SceneEnum.TrainingScene){
+            if (TestML.Populate()){                // True if weights.txt e bias.txt exist
+                SetLearnStatus(true);              // Learning done on the selected dataset
+                UpdateLatestLearningDate();        // Update last training date
+            }else{
+                SetLearnStatus(false);
+            }                               // No training on the selected dataset
         }
 
-        // Se la scena corrente � la scena di training (TrainingScene)
-        if (currSceneEnum == SceneEnum.TrainingScene)
-        {
-            if (TestML.Populate())
-            {                                        //  Restituisce true se trova i file weights.txt e bias.txt
-                SetLearnStatus(true);                                       //  Segnala che � stato effettuato il Learning sul dataset selezionato 
-                UpdateLatestLearningDate();                                 //  Aggiorna il testo contente la data dell'ultimo training effettuato sul dataset selezionato
-            }
-            else
-                SetLearnStatus(false);                                      //  Segnala che non � stato effettuato il trianing sul dataset selezionato 
-        }
-
-        // Se la scena corrente � la scena di testing (TestingScene)
-        if (currSceneEnum == SceneEnum.TestingScene)
-        {
+        //  Current scene Testing
+        if (currSceneEnum == SceneEnum.TestingScene){
             TestML.Populate();
         }
     }
 
-    void Start()
-    {
+    void Start(){
         trainer = new TrainingScript();
 
-        currentScene = SceneManager.GetActiveScene();                   //  Prende la scena correntemente attiva
-        Debug.Log("AGGIORNATO____CurrentScene in start:" + currentScene.buildIndex);
+        currentScene = SceneManager.GetActiveScene();                   // Get active scene
+        Debug.Log("Current scene in start:" + currentScene.buildIndex);
 
-        switch (currentScene.buildIndex)
-        {
+        switch (currentScene.buildIndex){
             case (0):
                 currSceneEnum = SceneEnum.MainPage;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
             case (1):
                 currSceneEnum = SceneEnum.PlayScene;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
             case (2):
                 currSceneEnum = SceneEnum.TrainingScene;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
             case (3):
                 currSceneEnum = SceneEnum.TestingScene;
-                Debug.Log("Current scene enumerator" + currSceneEnum);
+                Debug.Log("Current scene: " + currSceneEnum);
                 break;
         }
 
-
         counter = 0;
 
-        if (File.Exists(FileUtils.GeneratePath("lbl_notes.txt")) != false)
-        {
-            foreach (string line in System.IO.File.ReadLines(FileUtils.GeneratePath("lbl_notes.txt")))
-            {
-
+        if (File.Exists(FileUtils.GeneratePath("lbl_notes.txt")) != false){
+            foreach (string line in System.IO.File.ReadLines(FileUtils.GeneratePath("lbl_notes.txt"))){
                 Mylabel[counter] = Int32.Parse(line);
-
                 counter++;
             }
-        }
-        else
-        {
-            Debug.Log("lbl_notes � assente");
-        }
-
+        }else{ Debug.Log("lbl_notes missing"); }
 
         list_posizioni = new List<Position>();
 
-        if (currSceneEnum == SceneEnum.MainPage)
-        {
-            
-            playButton = GameObject.Find("PlayButton").GetComponent<Button>();          //  Istanzia il pulsante PlayButton
+        if (currSceneEnum == SceneEnum.MainPage){
+            playButton = GameObject.Find("PlayButton").GetComponent<Button>();    // Play Button
 
-            //  Controlla se ci sono i file necessari per passare alla scena "Play"
-            try
-            {
+            //  Check if there are all necessary files to Play
+            try{
                 playButton.interactable = FileUtils.CheckForDefaultFiles();
-
-            }
-            catch (Exception ex)
-            {
+            }catch (Exception ex){
                 Debug.Log(ex.Message);
             }
-
-
-            UpdateSelectedDatasetText();            //  Aggiorna il testo del dataset selezionato
-
+            UpdateSelectedDatasetText();            // Update text selected dataset
         }
 
-        if (currSceneEnum == SceneEnum.PlayScene)
-        {
-            ConnectLeapPanel = GameObject.Find("ConnectLeapPanel");         //  Istanzia il popup ConnectLeapPanel
+        if (currSceneEnum == SceneEnum.PlayScene){
+            ConnectLeapPanel = GameObject.Find("ConnectLeapPanel");         //  Popup ConnectLeapPanel
         }
+        if (currSceneEnum == SceneEnum.TrainingScene){
 
-        if (currSceneEnum == SceneEnum.TrainingScene)
-        {
+            ConnectLeapPanel = GameObject.Find("ConnectLeapPanel");         //  Popup ConnectLeapPanel
+            ClosePopUp();                                                   //  Close popup
 
-
-
-            ConnectLeapPanel = GameObject.Find("ConnectLeapPanel");         //  Istanzia il popup ConnectLeapPanel
-            ClosePopUp();                                                   //  Chiude il popup
-
-
-
-
-
-
-            FileUtils.UpdateTrainedNotesList(FileUtils.filename);           //  Aggiorna la lista delle note gi� registrate
-            UpdateButtonsKeyboard();                                        //  Aggiorna la tastiera
+            FileUtils.UpdateTrainedNotesList(FileUtils.filename);           //  Update recorded notes list
+            UpdateButtonsKeyboard();                                        //  Update the keyboard piano
 
             startTime = Time.time;
             LoadingCircle.SetActive(false);
         }
 
-        if (currSceneEnum == SceneEnum.TestingScene)
-        {
-            ConnectLeapPanel = GameObject.Find("ConnectLeapPanel");         //  Istanzia il popup ConnectLeapPanel
-            ClosePopUp();                                                   //  Chiude il popup
+        if (currSceneEnum == SceneEnum.TestingScene){
+            ConnectLeapPanel = GameObject.Find("ConnectLeapPanel");         //  Popup ConnectLeapPanel
+            ClosePopUp();                                                   //  Close popup
         }
-
     }
     
-    void FixedUpdate()
-    {
-        //Debug.Log("UPDATE curr scene " + currSceneEnum);
-        if (currSceneEnum == SceneEnum.PlayScene)
-        {
-            if (isActive)
-            {
+    void FixedUpdate(){
+        if (currSceneEnum == SceneEnum.PlayScene){
+            if (isActive){
 
-                // Aggiorna array delle features currentFeatures in modo tale che venga calcolata la nota giusta ad ogni update 
+                // Get current features
                 current_Features = TestingScript.GetCurrentFeatures();
 
-                //salva la nota che si stava suonando nell'update precedefnte prima di calcolare la nuova nota
-                //  Salva in memoria l'indice dell'ultima nota suonata
+                //  Save previous note
                 indexPreviousNote = indexPlayingNote;
 
-                //  Rappresenta la nota che deve essere suonata
-                Debug.Log("return valiue " + TestML.ReteNeurale(current_Features));
+                // Perform prediction
                 indexPlayingNote = Mylabel[TestML.ReteNeurale(current_Features)];
 
                 Debug.Log("Actual Note " + indexPlayingNote);
 
-                //  Cambia il colore del tasto sulla tastiera corrispondente alla nota che si sta suonando  
+                // Update keyboard piano with the current note
                 ChangeColor(indexPreviousNote, indexPlayingNote);
             }
 
-
-            if (!isActive)
-            {
-                // Ripristina i colori delle note al default
+            if (!isActive){
+                // Default color notes
                 ResetColorNotes();
             }
         }
 
-        if (currSceneEnum == SceneEnum.TrainingScene)
-        {
-            //  Avvia l'animazione di caricamento se necessario
+        if (currSceneEnum == SceneEnum.TrainingScene){
+            // Loading animation
             if (LoadingCircle.activeSelf)
                 StartCircleAnimation();
         }
     }
 
     /// <summary>
-    /// Aggiorna il nome della configurazione selezionata all'interno del Menu Principale
+    /// Update selected configuration name in the main page.
     /// </summary>
-    public void UpdateSelectedDatasetText()
-    {
+    public void UpdateSelectedDatasetText(){
         SelectedDatasetText.text = "Selected Configuration: " + FileUtils.selectedDataset;
     }
 
     /// <summary>
-    /// Aggiorna la data dell'ultimo addestramento effettuato all'interno della scena Training
+    /// Update last training date.
     /// </summary>
-    public void UpdateLatestLearningDate()
-    {
+    public void UpdateLatestLearningDate(){
         GameObject.Find("LearnButtonPrinc").GetComponent<MeshRenderer>().material = Resources.Load("TransparentBlue", typeof(Material)) as Material;
         GameObject.Find("LearnButtonPrinc").GetComponent<Light>().range = 0;
         DateLatestLearning.GetComponent<Text>().text = "Latest Learning: \n " + TestML.DateLatestLearning.ToString();
@@ -395,14 +351,15 @@ public class _GM : MonoBehaviour
 
     #endregion
 
-
+    ///
+    /// ----------------------------------- CONFIGURATION MANAGEMENT -----------------------------------
+    ///
     #region Configurations Management
 
     /// <summary>
-    /// Lanciato quando viene premuto il pulsante di training per la nota selezionata
+    /// Button event on training note.
     /// </summary>
-    public void TrainButtonClick(TrainingScript trainerMy)
-    {
+    public void TrainButtonClick(TrainingScript trainerMy) {
 
         Material LightGreen = Resources.Load("LightenedGreen", typeof(Material)) as Material;
 
@@ -411,35 +368,24 @@ public class _GM : MonoBehaviour
         Button.GetComponent<Light>().range = 10;
 
         trainerMy.Trainer();
-
-        //else if (currSceneEnum == SceneEnum.TestingScene)
-        //   tester.Tester();
     }
 
     /// <summary>
-    /// Lanciato quando viene premuto il pulsante di rimozione nota da dataset per la nota selezionata
+    /// Button event to remove note from dataset.
     /// </summary>
-    public async void RemoveButtonClick(GameObject Circle)
-    {
+    public async void RemoveButtonClick(GameObject Circle){
         GameObject Button = GameObject.Find("RemoveButton");
         Material LRed = Resources.Load("LightenedRed", typeof(Material)) as Material;
-
 
         Button.GetComponent<MeshRenderer>().material = LRed;
         Button.GetComponent<Light>().range = 10;
 
         Circle.SetActive(true);
 
-        //L'operatore await sospende la valutazione del metodo asincrono racchiuso fino al completamento
-        //dell'operazione asincrona rappresentata dal suo operando. Quando l'operazione asincrona � completata,
-        //l'operatore await restituisce il risultato dell'operazione, se presente.
-
-        if (await ThatTrainer.RemoveNote())
-        {
+        if (await ThatTrainer.RemoveNote()){
             UpdateButtonsKeyboard();
             Circle.SetActive(false);
             Material TRed = Resources.Load("TransparentRed", typeof(Material)) as Material;
-
 
             Button.GetComponent<MeshRenderer>().material = TRed;
             Button.GetComponent<Light>().range = 0;
@@ -447,100 +393,72 @@ public class _GM : MonoBehaviour
     }
 
     /// <summary>
-    /// Elimina tutti i file nel Dataset selezionato
+    /// Delete all files from dataset
     /// </summary>
-    public void ClearDefaultDatasetDirectory()
-    {
+    public void ClearDefaultDatasetDirectory(){
         FileUtils.ClearDefaultDatasetDirectory();
         ResetColorNotes();
     }
 
     #endregion
 
+
+    ///
+    /// ----------------------------------- KEYBOARD BUTTONS -----------------------------------
+    ///
     #region Keyboard Buttons
-    public void GetTrainer(TrainingScript trainerMy)
-    {
+
+    public void GetTrainer(TrainingScript trainerMy){
         ThatTrainer = trainerMy;
     }
 
-
-
     /// <summary>
-    /// Cambia il colore della nota da suonare, ripristinando al colore di default la nota precedentemente suonata (se necessario)
-    /// Se la nota da suonare � la stessa della precedente non cambia nulla
+    /// Change color of the note on the keyboard piano.
     /// </summary>
-    /// <param name="id_prev">id nota precedenteme</param>
-    /// <param name="id_curr">id nota da suonare</param>
-    private void ChangeColor(int id_prev, int id_curr)
-    {
+    /// <param name="id_prev">Previous Note Id </param>
+    /// <param name="id_curr">Next Note Id</param>
+    private void ChangeColor(int id_prev, int id_curr){
         GameObject[] z;
         GameObject[] y = new GameObject[24];
         GameObject[] x = new GameObject[24];
 
-
-        for (int i = 0; i < 24; i++)
-        {
+        for (int i = 0; i < 24; i++){
             z = GameObject.FindGameObjectsWithTag("" + i);
             y[i] = z[0];
             z = GameObject.FindGameObjectsWithTag("A" + i);
             x[i] = z[0];
-
-
         }
-
-
 
         List<int> SharpNotes = new List<int>() { 1, 3, 6, 8, 10, 13, 15, 18, 20, 22 };
         Color old;
-        if (id_prev == id_curr)
-        {
+        if (id_prev == id_curr){
             // return;
-        }
-        else
-        {
-
-            if (id_curr != 24)
-            {
-                //coloro la corrente nota
+        }else{
+            if (id_curr != 24){
+                // set color of the note
                 x[id_curr].GetComponent<Renderer>().material.color = Color.blue;
                 y[id_curr].transform.rotation = Quaternion.Euler(-3.4f, 0.0f, 0.0f);
             }
 
-
-
-            //decoloro la precedente
-
-            if (SharpNotes.Contains(id_prev))
-            {
+            //remove color of the previous note
+            if (SharpNotes.Contains(id_prev)){
                 old = Color.black;
-            }
-            else
-            {
+            }else{
                 old = Color.white;
             }
-            if (id_prev != 24)
-            {
+
+            if (id_prev != 24){
                 x[id_prev].GetComponent<Renderer>().material.color = old;
                 y[id_prev].transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
             }
-
-
         }
-
-
     }
 
-
-
-
-
     /// <summary>
-    /// Viene chiamato ogni volta che un tasto del pianoforte viene premuto, in modo che venga cambiato l'id
-    /// della nota selezionata. Serve alla classe Trainer.
+    /// Event on key of keyboard. Training.
     /// </summary>
     /// <param name="key"></param>
-    public void KeyNotesWantToSave(int key)
-    {
+    public void KeyNotesWantToSave(int key){
 
         GameObject[] z;
 
@@ -549,134 +467,87 @@ public class _GM : MonoBehaviour
         Material GreenT = Resources.Load("TransparentGreen", typeof(Material)) as Material;
         Material BlueT = Resources.Load("TransparentBlue", typeof(Material)) as Material;
         Material material = BlueT;
-        for (int i = 0; i < 24; i++)
-        {
-
+        for (int i = 0; i < 24; i++){
             z = GameObject.FindGameObjectsWithTag("A" + i);
             x[i] = z[0];
-
-
         }
         Color old;
 
-
         List<int> SharpNotes = new List<int>() { 1, 3, 6, 8, 10, 13, 15, 18, 20, 22 };
 
-        if (SharpNotes.Contains(previousclickedKey))
-        {
+        if (SharpNotes.Contains(previousclickedKey)){
             old = Color.black;
-        }
-        else
-        {
+        }else{
             old = Color.white;
         }
 
-        Debug.Log("PREVIOSU CLICKED " + previousclickedKey);
-        if (trainedNotes.Contains(previousclickedKey))
-        {
-            Debug.Log("YES CONTAIN " + previousclickedKey);
-            if (previousclickedKey != 24)
-            {
+        Debug.Log("Previous clicked" + previousclickedKey);
+        if (trainedNotes.Contains(previousclickedKey)){
+            if (previousclickedKey != 24){
                 old = Color.green;
-            }
-            else
-            {
-                Debug.Log("IMHERE");
+            }else{
                 material = GreenT;
                 GameObject.Find("PauseButton").GetComponent<Light>().range = 0;
-
             }
         }
-        if (previousclickedKey != 24)
-        {
+        if (previousclickedKey != 24){
             x[previousclickedKey].GetComponent<Renderer>().material.color = old;
-        }
-        else
-        {
-            //Pause Old click
+        }else{
+            // Pause Old click
             GameObject.Find("PauseButton").GetComponent<MeshRenderer>().material = material;
             GameObject.Find("PauseButton").GetComponent<Light>().range = 0;
         }
 
         previousclickedKey = key;
-        if (key != 24)
-        {
+        if (key != 24){
             x[key].GetComponent<Renderer>().material.color = Color.blue;
-        }
-        else
-        {
-            //if is the pause button a pause
+        }else{
+            // Pause button
             GameObject.Find("PauseButton").GetComponent<MeshRenderer>().material = Resources.Load("LightenedBlue", typeof(Material)) as Material;
             GameObject.Find("PauseButton").GetComponent<Light>().range = 20;
         }
-
         currentScene = SceneManager.GetActiveScene();
-        Debug.Log("CurrentScene ==============" + currentScene.buildIndex);
+        Debug.Log("Current scene: " + currentScene.buildIndex);
         currSceneEnum = SceneEnum.TrainingScene;
-        Debug.Log("cURRENT SCENE ENUMERATOR" + currSceneEnum);
+        Debug.Log("Current scene enumerator: " + currSceneEnum);
 
-
-
-
-
-        if (currSceneEnum == SceneEnum.TrainingScene)
-        {
-
-            Debug.Log("sono here");
+        if (currSceneEnum == SceneEnum.TrainingScene){
             ThatTrainer.ChangeNoteId(key);
         }
 
-
-        //  Serve per testing... Usa un altro script trainer (ConfusionTestingScript.cs)
+        // Testing ... (ConfusionTestingScript.cs)
         // if (currSceneEnum == SceneEnum.TestingScene)
-        //   tester.ChangeNoteId(key);
-
-
+        //      tester.ChangeNoteId(key);
     }
 
-
     /// <summary>
-    /// Evidenzia tutte le note della tastiera che sono state gi� allenate (le note che sono presenti nel dataset selezionato e dunque nella lista trainedNotes)
+    /// Highlight all trained notes.
     /// </summary>
-    public void UpdateButtonsKeyboard()
-    {
-
+    public void UpdateButtonsKeyboard(){
         ResetColorNotes();
         GameObject[] z;
         GameObject[] y = new GameObject[24];
 
-        for (int i = 0; i < 24; i++)
-        {
+        for (int i = 0; i < 24; i++){
             z = GameObject.FindGameObjectsWithTag("A" + i);
             y[i] = z[0];
-
         }
 
-        foreach (var item in trainedNotes)
-        {
-            if (item != 24)
-            {
+        foreach (var item in trainedNotes){
+            if (item != 24){
                 y[item].GetComponent<Renderer>().material.color = Color.green;
-            }
-            else
-            {
+            }else{
                 pauseButton.GetComponent<MeshRenderer>().material = Resources.Load("TransparentGreen", typeof(Material)) as Material;
             }
         }
-
     }
 
-
     /// <summary>
-    /// Resetta il colore dei tasti
+    /// Reset color on keyboard.
     /// </summary>
-    public void ResetColorNotes()
-    {
-
-
+    public void ResetColorNotes(){
         //Pause Old click
-        if (pauseButton != null)
-        {
+        if (pauseButton != null){
             pauseButton.GetComponent<MeshRenderer>().material = Resources.Load("TransparentBlue", typeof(Material)) as Material;
             pauseButton.GetComponent<Light>().range = 0;
         }
@@ -685,224 +556,172 @@ public class _GM : MonoBehaviour
         GameObject[] y = new GameObject[24];
         GameObject[] x = new GameObject[24];
 
-        for (int i = 0; i < 24; i++)
-        {
-
+        for (int i = 0; i < 24; i++){
             z = GameObject.FindGameObjectsWithTag("A" + i);
             y[i] = z[0];
             z = GameObject.FindGameObjectsWithTag("" + i);
             x[i] = z[0];
-            /************************
-            //AGGIUNTA IF
-            if (z[0]!=null)
-            {
-                y[i] = z[0];
-            }
-            z = GameObject.FindGameObjectsWithTag("" + i);
-            //AGGIUNTA IF
-            if (z[0] != null)
-            {
-                x[i] = z[0];
-            }
-            */
         }
-        
 
         List<int> SharpNotes = new List<int>() { 1, 3, 6, 8, 10, 13, 15, 18, 20, 22 };
         Color old;
 
-        for (int i = 0; i < 24; i++)
-        {
-            if (SharpNotes.Contains(i))
-            {
+        for (int i = 0; i < 24; i++){
+            if (SharpNotes.Contains(i)){
                 old = Color.black;
-            }
-            else
-            {
+            }else{
                 old = Color.white;
             }
             y[i].GetComponent<Renderer>().material.color = old;
             x[i].transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-            /*
-            //aggiunta IF
-            if (x.Length>0 && y.Length>0)
-            {
-                y[i].GetComponent<Renderer>().material.color = old;
-                x[i].transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-            }
-            */
         }
-
     }
+
     #endregion
 
 
+    ///
+    /// ----------------------------------- NAVIGATION -----------------------------------
+    ///
     #region NAVIGATION
 
     /// <summary>
-    /// Chiude l'applicazione
+    /// Close application.
     /// </summary>
     public void QuitGame() => Application.Quit();
 
     /// <summary>
-    /// Effettua la navigazione alla scena principale
+    /// Navigate to Main scene.
     /// </summary>
-    public void NavigateToMainScene()
-    {
-        Debug.Log("I PRESSED THIS BUTTON 0");
+    public void NavigateToMainScene(){
         SceneManager.LoadScene(0);
         currSceneEnum = SceneEnum.MainPage;
-
     }
 
     /// <summary>
-    /// Effettua la navigazione alla scena di test
+    /// Navigate to Test scene.
     /// </summary>
-    public void NavigateToTestScene()
-    {
+    public void NavigateToTestScene(){
         TestML.Populate();
         SceneManager.LoadScene(1);
         currSceneEnum = SceneEnum.PlayScene;
-        Debug.Log("I PRESSED THIS BUTTON 1");
     }
 
-
     /// <summary>
-    /// Effettua la navigazione alla sena di testing della matrice
+    /// Navigate to Testing with confusion matrix.
     /// </summary>
-    public void NavigateToTestingMatrixScene()
-    {
+    public void NavigateToTestingMatrixScene(){
         SceneManager.LoadScene(3);
         currSceneEnum = SceneEnum.TestingScene;
-        Debug.Log("I PRESSED THIS BUTTON 3");
     }
 
     /// <summary>
-    /// Effettua la navigazione alla scena di training
+    /// Navigate to Training scene.
     /// </summary>
-    public void NavigateToTrainingtScene()
-    {
-        //loadingOperation0 = SceneManager.LoadSceneAsync("TrainingScene", LoadSceneMode.Additive);
+    public void NavigateToTrainingtScene(){
         SceneManager.LoadScene(2);
         currSceneEnum = SceneEnum.TrainingScene;
-        Debug.Log("I PRESSED THIS BUTTON 2");
-
     }
 
     #endregion
 
+
+    ///
+    /// ----------------------------------- PANELS -----------------------------------
+    ///
     #region Panels (Managing Configurations)
 
-
-
     /// <summary>
-    /// Apre il pannello per selezionare una configurazione.
+    /// Open configuration panel.
     /// </summary>
-    public void OpenPanel()
-    {
+    public void OpenPanel(){
         PanelUtils.OpenPanel();
 
         Debug.Log(FileUtils.selectedDataset);
-        if (currSceneEnum == SceneEnum.MainPage)
-        {
+        if (currSceneEnum == SceneEnum.MainPage){
             UpdateSelectedDatasetText();
             playButton.interactable = FileUtils.CheckForDefaultFiles();
         }
     }
 
     /// <summary>
-    /// Apre un pannello per selezionare un dataset da importare nella cartella MyDataset
+    /// Open panel to import the dataset.
     /// </summary>
-    public void OpenImportPanel()
-    {
+    public void OpenImportPanel(){
         PanelUtils.OpenImportPanel();
-
         if (currSceneEnum == SceneEnum.MainPage)
             UpdateSelectedDatasetText();
     }
 
     /// <summary>
-    /// Apre un pannello per selezionare un dataset da esportare in una qualsiasi directory sul pc
+    /// Open panel to export the dataset.
     /// </summary>
-    public void OpenExportPanel()
-    {
+    public void OpenExportPanel(){
         PanelUtils.OpenExportPanel();
     }
 
     #endregion
 
+    ///
+    /// ----------------------------------- POPUPS -----------------------------------
+    ///
 
     #region Popups
     /// <summary>
-    /// Apre il PopUp dopo aver cliccato il bottone info
+    /// Open info popup.
     /// </summary>
-    public void OpenPopUp(GameObject popup)
-    {
-
-        Debug.Log("OPEN");
-
+    public void OpenPopUp(GameObject popup){
         popup.SetActive(true);
     }
 
     /// <summary>
-    /// Chiude il PopUp dopo aver cliccato il bottone info
+    /// Close info popup.
     /// </summary>
-    public void ClosePopUp()
-    {
-        Debug.Log("Closepopup");
+    public void ClosePopUp(){
         PopupPanel.SetActive(false);
-
     }
 
-    public void ButtonCloseP(GameObject popup)
-    {
+    public void ButtonCloseP(GameObject popup){
         popup.SetActive(false);
     }
 
     /// <summary>
-    /// Mostra il popup che richiede di connettere il LeapMotion
+    /// Popup LeapMotion not connected.
     /// </summary>
-    public static void ShowConnectLeapPopup()
-    {
+    public static void ShowConnectLeapPopup(){
         ConnectLeapPanel.SetActive(true);
     }
 
     /// <summary>
-    /// Nasconde il popup che richiede di connettere il LeapMotion
+    /// Popup LeapMotion connected.
     /// </summary>
-    public static void HideConnectLeapPopup()
-    {
+    public static void HideConnectLeapPopup(){
         ConnectLeapPanel.SetActive(false);
     }
 
     /// <summary>
-    /// Mostra il popup per la conferma della cancellazione dell' intero dataset
+    /// Popup to delete the dataset.
     /// </summary>
-    public void OpenDeletePanel(GameObject panel)
-    {
-        GameObject.Find("RemoveButtonBody").GetComponent<MeshRenderer>().material = Resources.Load("LightenedRed", typeof(Material)) as Material; //cambio il materiale 
-        GameObject.Find("RemoveButtonBody").GetComponent<Light>().range = 10;                                                                   // Attivo la luce
+    public void OpenDeletePanel(GameObject panel){
+        GameObject.Find("RemoveButtonBody").GetComponent<MeshRenderer>().material = Resources.Load("LightenedRed", typeof(Material)) as Material;
+        GameObject.Find("RemoveButtonBody").GetComponent<Light>().range = 10;
         panel.SetActive(true);
     }
 
-    public void CloseDeletePanel(GameObject panel)
-    {
+    public void CloseDeletePanel(GameObject panel){
         panel.SetActive(false);
-        GameObject.Find("RemoveButtonBody").GetComponent<MeshRenderer>().material = Resources.Load("RedDark", typeof(Material)) as Material;  //ritorno al materiale iniziale
-        GameObject.Find("RemoveButtonBody").GetComponent<Light>().range = 0;                                                                   //disattivo la luce
-
+        GameObject.Find("RemoveButtonBody").GetComponent<MeshRenderer>().material = Resources.Load("RedDark", typeof(Material)) as Material;
+        GameObject.Find("RemoveButtonBody").GetComponent<Light>().range = 0;
     }
 
     #endregion
 
 
     ///<summary>
-    ///  Avvia l'animazione del caricamento
+    /// Start loading animation.
     ///</summary>
-    public void StartCircleAnimation()
-    {
-        if (Time.time - startTime >= timeStep)
-        {
+    public void StartCircleAnimation(){
+        if (Time.time - startTime >= timeStep){
             Vector3 iconAngle = mainIcon.localEulerAngles;
             iconAngle.z += oneStepAngle;
 
@@ -913,11 +732,10 @@ public class _GM : MonoBehaviour
     }
 
     /// <summary>
-    /// Visualizza la spunta vicino tasto "learn" per comunicare che per la configurazione selezionata � stato fatto precedentemente il learning
+    /// Show check near Learn button to communicate that learning was previously done for the selected configuration.
     /// </summary>
-    /// <param name="state">true se � stato effettuato il learning, false altrimenti</param>
-    public void SetLearnStatus(bool state)
-    {
+    /// <param name="state">True learning done, false otherwise</param>
+    public void SetLearnStatus(bool state){
         ConfLearn.SetActive(state);
         DateLatestLearning.SetActive(state);
         ConfNotLearn.SetActive(!state);

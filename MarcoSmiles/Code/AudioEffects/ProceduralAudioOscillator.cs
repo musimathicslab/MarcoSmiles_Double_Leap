@@ -5,88 +5,89 @@ using System;
 using UnityEngine.UI;
 
 /// <summary>
-/// Classe che gestisce il sintetizzatore e genera audio
-/// Utilizza le Classi SawWave, SquareWave e  SinusWave,
-/// Scrive i campionamenti nel motore audio di unity utilizzando MonoBehaviour.OnAudioFilterRead
-/// </summary>
+/// Class that manages the synthesiser and generates audio
+/// Uses the SawWave, SquareWave and SinusWave Classes,
+/// Writes samples to the unity audio engine using MonoBehaviour.OnAudioFilterRead
+/// </summary>.
 [RequireComponent(typeof(AudioSource))]
 public class ProceduralAudioOscillator : MonoBehaviour
 {
     private string TextOlogramma;
-    //istanza della Classe MidiClass ci permette di utilizzarne i metodi
     private MidiClass myMidi = new MidiClass();  
 
-    //Memorizzano la precedente nota suonata con la relativa ottava
+    //Previous note with octave
     private int OldNote = 0;
     private int OldOctave = 0;
 
-    //Contiene l'indice della nota da inviare
+    //Index note to send
     private int NoteToSend=0;
 
-    //Utilizzato nella gestione dei messaggi MidiOn/MidiOff
+    //Handle messages MidiOn/MidiOff
     private int flagNote = 0;
-    //indica se il modulo MIDI è in funzione
+
+    // Midi Flag
     private Boolean MidiOn = false;
 
-    //indica se è attivo l'ologramma
+    // Hologram flag
     private Boolean HoloOn = false;
 
     private UnityEngine.UI.Text HoloText;
 
     string[] NomeNote = new string[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ,"PAUSE"};
 
-
-
+    /// <summary>
+    /// Saw Wave
+    /// </summary>
+    SawWave sawAudioWave;
 
     /// <summary>
-    /// Per costruire una Saw Wave
+    /// Square Wave
     /// </summary>
-    SawWave sawAudioWave;                       //  Classe per Saw Wave
+    SquareWave squareAudioWave;
+
     /// <summary>
-    /// Per costruire una Square Wave
+    /// Sine Wave
     /// </summary>
-    SquareWave squareAudioWave;                 //  Classe per Square Wave
-    /// <summary>
-    /// Per costruire una Sine Wave
-    /// </summary>
-    SinusWave sinusAudioWave;                   //  Classe per Sine Wave
+    SinusWave sinusAudioWave;
    
     /// <summary>
-    /// Oscillatore usato per la modulazione d'ampiezza
+    /// Oscillator used for Amplitude Modulation
     /// </summary>
-    SinusWave amplitudeModulationOscillator;        //  Oscillatore usato per Modulazione di Ampiezza
+    SinusWave amplitudeModulationOscillator;
+
     /// <summary>
-    /// Oscillatore usato per la modulazione di frequenza
+    /// Oscillator used for Frequency Modulation
     /// </summary>
-    SinusWave frequencyModulationOscillator;        //  Oscillatore usato per Modulazione di Frequenza
+    SinusWave frequencyModulationOscillator;
 
+    private int sampleRate;                         //  Sampling frequency used by Unity
+    private double dataLen;                         //  Number of samplings on date for each channel
 
-    private int sampleRate;                         //  Frequenza di campionamento usata da Unity
-    private double dataLen;                         //  Numero di campionamenti in data per ogni canale 
     /// <summary>
-    /// La durata di ogni porzione di data  
+    /// The duration of each date portion
     /// </summary>
     double chunkTime;
+
     /// <summary>
-    /// Il tempo di ogni step (the time that each individual audio sample lasts)
+    /// The time of each step (the duration of each audio sample)
     /// </summary>
     double dspTimeStep;
+
     /// <summary>
-    /// Il tempo corrente del sistema sonoro di Unity
+    /// The current tempo of Unity's sound system
     /// </summary>
     double currentDspTime;
 
+    [Range(0f, 1f)]
+    public double sinWeight;    /*!< Sine oscillator weight on output */
 
     [Range(0f, 1f)]
-    public double sinWeight; /*!< Peso dell'oscillatore Sine sull'output */
+    public double sqrWeight;    /*!< Square oscillator weight on output*/
 
     [Range(0f, 1f)]
-    public double sqrWeight;    /*!< Peso dell'oscillatore Square sull'output */
+    public double sawWeight;    /*!< Saw oscillator weight on output */
 
-    [Range(0f, 1f)]
-    public double sawWeight;        /*!< Peso dell'oscillatore Saw sull'output */
-
-    //  Output per ogni forma d'onda (sarebbero i campionamenti effettuati)
+    // Output for each waveform (would be the samplings performed)
     private float sinOutput;
     private float sawOutput;
     private float sqrOutput;
@@ -104,17 +105,18 @@ public class ProceduralAudioOscillator : MonoBehaviour
     /// </summary>
     [Header("Frequency Modulation")]
     public bool useFrequencyModulation;
+
     /// <summary>
     ///  Float parameter that determines the Frequency Modulation Oscillator’s frequency.
     /// </summary>
     [Range(0.2f, 30.0f)]
     public float frequencyModulationOscillatorFrequency = 1.0f;
+
     /// <summary>
     /// Float parameter that determines the Frequency Modulation Oscillator’s intensity.
     /// </summary>
     [Range(1.0f, 100.0f)]
     public float frequencyModulationOscillatorIntensity = 10.0f;
-
 
     /*
      These parameters are for external use, only (they are calculated, based on the previous parameters and time-dependent functions). 
@@ -127,19 +129,18 @@ public class ProceduralAudioOscillator : MonoBehaviour
     [Header("Out Values")]
     [Range(0.0f, 1.0f)]
     public float amplitudeModulationRangeOut;     
+
     /// <summary>
     /// The Frequency Modulation Oscillator’s current value (range 0 to 1)
     /// </summary>
     [Range(0.0f, 1.0f)]
     public float frequencyModulationRangeOut;
 
-
     /* These control the amplitude of the general signal  */
-
     public float gain;
 
     /// <summary>
-    ///  general volume of the oscillators, the output is moltiplied by this value
+    ///  general volume of the oscillators, the output is multiplied by this value
     /// </summary>
     [Range(0f, 1f)]
     public float volume = 0;
@@ -159,13 +160,9 @@ public class ProceduralAudioOscillator : MonoBehaviour
     //  Indicates the name of the octave that the user can play. It starts with C4
     public int octaveNumber = 4;
 
-
-    void Awake()
-    {
-
+    void Awake(){
         HoloText = GameObject.Find("HoloText").GetComponent<UnityEngine.UI.Text>();
         GameObject.Find("ActDis").SetActive(false);
-      
 
         sawAudioWave = new SawWave();
         squareAudioWave = new SquareWave();
@@ -183,48 +180,35 @@ public class ProceduralAudioOscillator : MonoBehaviour
         volume = volumeValue;
 }
 
-
-    void Start()
-    {
-        //Preimpostazione iniziale. Puoi eventualmente salvare diversi preset in modo simile.
+    void Start(){
         sinWeight = 0.75;
         sqrWeight = 0.25;
         sawWeight = 0.25;
 
-        //Ricerca del dispositivo di output 
+        // Search output midi device
         myMidi.FindMidi();
       
         changeNote(_GM.indexPlayingNote);
     }
 
-    void Update()
-    {
+    void Update(){
         //  Used to change the note playing by the synth
-    
         changeNote(_GM.indexPlayingNote);
-        //Debug.Log(frequency);
 
-        //Se l'utente ha attivato la funzione ologramma
-        if (HoloOn)
-        {
+        // If Hologram on
+        if (HoloOn){
             HoloText.text = TextOlogramma;
-
         }
-
     }
 
-
     /// <summary>
-    ///   Uses a switch case... In order to check on the index of the playing note and change the frequency of the oscillator 
+    /// Uses a switch case... In order to check on the index of the playing note and change the frequency of the oscillator
     /// </summary>
     /// <param name="noteIndex"> The index of the playing note. This index is contained inside the game master (_GM)</param>
-    void changeNote(int noteIndex)
-    {
+    void changeNote(int noteIndex){
         NoteToSend = noteIndex;
-       
-     
-        switch (noteIndex)                  //sostituire con qualche design pattern?
-        {
+
+        switch (noteIndex){
             case 0:     //C4
                 frequency = frequencies[0];
                 break;
@@ -305,61 +289,36 @@ public class ProceduralAudioOscillator : MonoBehaviour
                 Debug.Log("Default case");
                 break;
         }
-      
-  
-             
-
         }
 
-
-
-
-
-
-    /// <summary>
-    ///  OnAudioFilterRead consente di intercettare ciò che l' audio source collegato a questo oggetto sta riproducendo. In questo modo possiamo modificare 
-    ///  ciò che l'audio source sta riproducendo, sia scrivendo nuovi campionamenti all'interno, che modificando l'audio clip che l'audio source sta riproducendo.
+    /// <summary>.
+    /// OnAudioFilterRead allows us to intercept what the audio source connected to this object is playing. In this way we can change
+    /// what the audio source is playing, either by writing new samples inside, or by modifying the audio clip that the audio source is playing.
     /// </summary>
-    /// <param name="data">Buffer contenente i campionamenti dell'aduio source.. possiamo scrivere qui per far rispodurre suoni all'oggetto audiosource</param>
-    /// <param name="channels"> Numero di canali disponibili dal motore audio unity. Per audio stereo, channels = 2.</param>
-    void OnAudioFilterRead(float[] data, int channels)
-    {
-        if (_GM.isActive)
-        {
-
-            
-            
-            //Se l'utente ha attivato la funzione MIDI
-            if (MidiOn)
-            {
-                //se La nota la nota da "suonare" è diversa da quella precedentemente suonata
-                if (OldNote != NoteToSend || OldOctave != octaveNumber)
-                {
-
-                   //"rilascia" la nota precedentemente suonata inviando il messaggio MidiOff relativo
+    /// <param name="data">Buffer containing the samples from the audio source... we can write here to make the audiosource object play sounds back</param>
+    /// <param name="channels">Number of channels available from the unity audio engine. For stereo audio, channels = 2. </param>
+    void OnAudioFilterRead(float[] data, int channels){
+        if (_GM.isActive){
+            // If Midi On
+            if (MidiOn){
+                // If the current note is different respect the previous note
+                if (OldNote != NoteToSend || OldOctave != octaveNumber){
                     myMidi.SendMidiOff(OldNote, OldOctave);
-                    //invia il messaggio MidiOn per la nota che si sta attualmente "suonando"
-                    if (NoteToSend != 24)
-                    {
+                    // Send MidiOn of the current note
+                    if (NoteToSend != 24){
                         myMidi.SendEvent(NoteToSend, octaveNumber);
                     }
                     flagNote = 0;
 
-                    //memorizzo la nota inviata
+                    // Save sent note
                     OldNote = NoteToSend;
                     OldOctave = octaveNumber;
                 }
             }
 
-            if (HoloOn)
-            {
+            if (HoloOn){
                 setHoloText(NoteToSend, octaveNumber);
             }
-
-           
-           
-            
-
 
             /* 
              * This is "the current time of the audio system", as given
@@ -368,7 +327,7 @@ public class ProceduralAudioOscillator : MonoBehaviour
              * 
              */
 
-            currentDspTime = AudioSettings.dspTime;     // the current time of the audio system     
+        currentDspTime = AudioSettings.dspTime;     // the current time of the audio system
         dataLen = data.Length / channels;           // the actual data length for each channel
         chunkTime = dataLen / sampleRate;           // the time that each chunk of data lasts
         dspTimeStep = chunkTime / dataLen;          // the time of each dsp step. (the time that each individual audio sample (actually a float value) lasts)
@@ -386,14 +345,12 @@ public class ProceduralAudioOscillator : MonoBehaviour
             double currentFreq = frequency;                         //  this lets us modulate the frequency
 
             //  Applies Frequency Modulation
-            if (useFrequencyModulation)
-            {
+            if (useFrequencyModulation){
                 double freqOffset = (frequencyModulationOscillatorIntensity * frequency * 0.75) / 100.0;
                 currentFreq += mapValueD(frequencyModulationOscillator.calculateSignalValue(preciseDspTime, frequencyModulationOscillatorFrequency), -1.0, 1.0, -freqOffset, freqOffset);
                 frequencyModulationRangeOut = (float)frequencyModulationOscillator.calculateSignalValue(preciseDspTime, frequencyModulationOscillatorFrequency) * 0.5f + 0.5f;
             }
-            else
-            {
+            else{
                 frequencyModulationRangeOut = 0.0f;
             }
 
@@ -404,8 +361,7 @@ public class ProceduralAudioOscillator : MonoBehaviour
             //  the samples calculated for the square wave
             sqrOutput = (float)(sqrWeight * squareAudioWave.calculateSignalValue(preciseDspTime, currentFreq));
 
-
-            /*      Mixa assieme tutti gli output
+            /* Mix together all outputs
              http://www.vttoth.com/CMS/index.php/technical-notes/68
              Let's say we have two signals, A and B. If A is quiet, we want to hear B on the output in unaltered form. If B 
             is quiet, we want to hear A on the output (i.e., A and B are treated symmetrically.) If both A and B have a non-zero amplitude,
@@ -414,88 +370,66 @@ public class ProceduralAudioOscillator : MonoBehaviour
             above conditions:       Z= A + B − AB.
             Simple, isn't it! Moreover, it can be easily adapted for more than two signals. 
             Consider what happens if we mix another signal, C, to Z:  T= Z + C − Z C = A + B + C − AB − AC − BC + ABC.
-
-             */
+            */
             nextOutput = sinOutput + sawOutput + sqrOutput - (sinOutput * sawOutput) -
                                     (sinOutput * sqrOutput) - (sawOutput * sqrOutput) + (sinOutput * sawOutput * sqrOutput);
 
-
-
             //  Applies Amplitude Modulation
-            if (useAmplitudeModulation)
-            {
+            if (useAmplitudeModulation){
                 nextOutput *= (float)mapValueD(amplitudeModulationOscillator.calculateSignalValue(preciseDspTime, amplitudeModulationOscillatorFrequency), -1.0, 1.0, 0.0, 1.0);
                 amplitudeModulationRangeOut = (float)amplitudeModulationOscillator.calculateSignalValue(preciseDspTime, amplitudeModulationOscillatorFrequency) * 0.5f + 0.5f;
             }
-            else
-            {
+
+            else{
                 amplitudeModulationRangeOut = 0.0f;
             }
-
-
-                
-                //se è attiva la funzionalità Midi il Sinth non deve emettere alcun suono
-                if (MidiOn)
-                {
+                // If Midi functionality is active, the Sinth must not emit any sound
+                if (MidiOn){
                     volume = 0;
                 }
-                else
-                {
+                else{
                     volume = 0.3f;
                 }
 
                  float x = volume  * (float)nextOutput;
 
             //  Copies the samples on every available channels of the sound system
-            for (int j = 0; j < channels; j++)
-            {
+            for (int j = 0; j < channels; j++){
                 data[i * channels + j] = x;
             }
-
         }
-        }
-        else
-        {
-            //Se l'utente desidera non suonare alcuna nota 
-            //invio il MidiOff relativo alla nota che si stava suonando precedentemente
-            if (flagNote == 0)
-            {
+        }else{
+            // Send MidiOff of the previous note
+            if (flagNote == 0){
                 myMidi.SendMidiOff(OldNote, OldOctave);
                 flagNote = 1;
             }
-            if (HoloOn)
-            {
+            if (HoloOn){
                 setHoloText(-1, octaveNumber);
             }
         }
-
     }
 
-  
     /// <summary>
-    /// Change the starting octave that the user can play. This makes everything an octave up
+    /// Change the starting octave that the user can play. This makes everything an octave up.
     /// </summary>
-    public void OctaveUp()
-    {
+    public void OctaveUp(){
         octaveNumber += 1;
         UpdateOctaveNumber();
 
-        for (int i = 0; i < frequencies.Length; i++)
-        {
+        for (int i = 0; i < frequencies.Length; i++){
             frequencies[i] *= 2;
         }
     }
 
     /// <summary>
-    /// Change the starting octave that the user can play. This makes everything an octave down
+    /// Change the starting octave that the user can play. This makes everything an octave down.
     /// </summary>
-    public void OctaveDown()
-    {
+    public void OctaveDown(){
         octaveNumber -= 1;
         UpdateOctaveNumber();
 
-        for (int i = 0; i < frequencies.Length; i++)
-        {
+        for (int i = 0; i < frequencies.Length; i++){
             frequencies[i] /= 2;
         }
     }
@@ -503,66 +437,39 @@ public class ProceduralAudioOscillator : MonoBehaviour
     /// <summary>
     /// Updates the number of the starting octave that the user can play inside the scene (gui)
     /// </summary>
-    public void UpdateOctaveNumber()
-    {
+    public void UpdateOctaveNumber(){
         var text = GameObject.Find("NumeroOttava").GetComponent<UnityEngine.UI.Text>();
         text.text = "C" + (octaveNumber) + " - C" + (octaveNumber + 1);
-
     }
 
-    //mio
     //Switcher On/OFF
-    public void Switcher()
-    {
-
+    public void Switcher(){
         GameObject MIDIButton = GameObject.Find("MIDI2");
-   
-
         var text = GameObject.Find("MidiText").GetComponent<UnityEngine.UI.Text>();
-        //text = score.ToString();
-        //Debug.Log("text.text ==" + text.text+ text.color);
 
-
-        if (text.text=="MIDI ON")
-        {
+        if (text.text=="MIDI ON"){
            text.text = "MIDI OFF";
             MIDIButton.GetComponent<Light>().range = 0;
             MIDIButton.GetComponent<MeshRenderer>().material = Resources.Load("TransparentBlue", typeof(Material)) as Material;
 
             MidiOn = false;
 
-        }
-        else
-        {
+        }else{
             text.text = "MIDI ON";
             MIDIButton.GetComponent<Light>().range = 10;
             MidiOn = true;
             MIDIButton.GetComponent<MeshRenderer>().material = Resources.Load("LightenedBlue", typeof(Material)) as Material;
-          
-
         }
-        
     }
 
-
-    //mio
     //Switcher Holo
-    public void HoloSwitcher(GameObject ActDis)
-    {
-
+    public void HoloSwitcher(GameObject ActDis){
         GameObject HoloButton = GameObject.Find("HoloButtonBody");
-
-
-        
         GameObject LightEmiss = GameObject.Find("LightEmission");
-        //text = score.ToString();
-        //Debug.Log("text.text ==" + text.text+ text.color);
         Material LightBlue= Resources.Load("LightenedBlue", typeof(Material)) as Material;
         Material TBlue = Resources.Load("TransparentBlue", typeof(Material)) as Material;
 
-
-        if (HoloOn==false)
-        {
+        if (HoloOn==false){
             ActDis.SetActive(true);
             LightEmiss.GetComponent<MeshRenderer>().material = LightBlue;
             LightEmiss.GetComponent<Light>().range = 20;
@@ -571,9 +478,7 @@ public class ProceduralAudioOscillator : MonoBehaviour
 
             HoloOn = true;
 
-        }
-        else
-        {
+        }else{
             ActDis.SetActive(false);
             LightEmiss.GetComponent<MeshRenderer>().material = TBlue;
             LightEmiss.GetComponent<Light>().range = 0;
@@ -581,53 +486,38 @@ public class ProceduralAudioOscillator : MonoBehaviour
             HoloButton.GetComponent<MeshRenderer>().material = TBlue;
 
             HoloOn = false;
-
         }
-
     }
 
-
-    
-
-
     //These functions scale floats and double values from one range to another 
-    float mapValue(float referenceValue, float fromMin, float fromMax, float toMin, float toMax)
-    {
+    float mapValue(float referenceValue, float fromMin, float fromMax, float toMin, float toMax){
         /* This function maps (converts) a Float value from one range to another */
         return toMin + (referenceValue - fromMin) * (toMax - toMin) / (fromMax - fromMin);
     }
 
-    double mapValueD(double referenceValue, double fromMin, double fromMax, double toMin, double toMax)
-    {
+    double mapValueD(double referenceValue, double fromMin, double fromMax, double toMin, double toMax){
         /* This function maps (converts) a Double value from one range to another */
         return toMin + (referenceValue - fromMin) * (toMax - toMin) / (fromMax - fromMin);
     }
 
-
     /// <summary>
-    /// modifica la nota rappresentata sull' ologramma
+    /// Hologram note.
     /// </summary>
     /// <param name="note"></param>
     /// <param name="octave"></param>
-    public void setHoloText(int note, int octave)
-    {
+    public void setHoloText(int note, int octave){
         String NotaTxt = "";
         String OttavaTxt = "";
-        //Debug.Log("SetHoloTextActivated");
-        if (note == 24 || note == -1)
-        {
+
+        if (note == 24 || note == -1){
             TextOlogramma = "";
         }
-        else
-        {
-
+        else{
             NotaTxt = NomeNote[note % 12];
-            if (note > 11)
-            {
+            if (note > 11){
                 OttavaTxt = "" + (octave + 1);
             }
-            else
-            {
+            else{
                 OttavaTxt = "" + octave;
             }
         }
@@ -639,51 +529,38 @@ public class ProceduralAudioOscillator : MonoBehaviour
     #region Change Synth Parameters From GUI
 
     /* These are needed in order to control values from the gui  */
-
-    public void ChangeSinWeight(float weight)
-    {
+    public void ChangeSinWeight(float weight){
         sinWeight = weight;
     }
 
-    public void ChangeSqrWeight(float weight)
-    {
+    public void ChangeSqrWeight(float weight){
         sqrWeight = weight;
     }
 
-    public void ChangeSawWeight(float weight)
-    {
+    public void ChangeSawWeight(float weight){
         sawWeight = weight;
     }
 
-    public void ActivateFm()
-    {
+    public void ActivateFm(){
         useFrequencyModulation = !useFrequencyModulation;
     }
 
-    public void ChangeFMFreq(float value)
-    {
+    public void ChangeFMFreq(float value){
         frequencyModulationOscillatorFrequency = value;
     }
 
-
-    public void ChangeFMIntensity(float value)
-    {
+    public void ChangeFMIntensity(float value){
         frequencyModulationOscillatorIntensity = value;
     }
 
-    public void ActivateAm()
-    {
+    public void ActivateAm(){
         useAmplitudeModulation = !useAmplitudeModulation;
     }
 
-    public void ChangeAMFreq(float value)
-    {
+    public void ChangeAMFreq(float value){
         amplitudeModulationOscillatorFrequency = value;
     }
 
     #endregion
-
-
-
 }
 

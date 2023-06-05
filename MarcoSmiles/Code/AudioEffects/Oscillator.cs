@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// Classe che gestisce il sintetizzatore e genera audio
-/// Genera campionamenti descrivendo funzioni periodiche
-/// Scrive i campionamenti nel motore audio di unity utilizzando MonoBehaviour.OnAudioFilterRead.
+/// Class that manages the synthesiser and generates audio
+/// Generates samples by describing periodic functions
+/// Writes samples to the unity audio engine using MonoBehaviour.OnAudioFilterRead.
 /// </summary>
 [RequireComponent(typeof(AudioSource))]
-public class Oscillator : MonoBehaviour
-{
+public class Oscillator : MonoBehaviour{
 
     public double frequency = 440;
     // For oscillation
@@ -26,7 +25,6 @@ public class Oscillator : MonoBehaviour
     private float sawOutput;
     private float sqrOutput;
     private float noiseOutput;
-
 
     public float gain;
     [Range(0f, 1f)]
@@ -58,11 +56,9 @@ public class Oscillator : MonoBehaviour
     [Range(20, 20000)]
     public double filterFreq;
 
-
     //For amplitude and frequency modulation
     SineHP amplitudeModulationOscillator;
     SineHP frequencyModulationOscillator;
-
 
     [Header("Amplitude Modulation")]
     public bool useAmplitudeModulation;             //Boolean parameter that determines whether or not to apply amplitude modulation on the produced sound.
@@ -91,11 +87,7 @@ public class Oscillator : MonoBehaviour
     [Range(0.0f, 1.0f)]
     public float frequencyModulationRangeOut;       //The Frequency Modulation Oscillator’s current value (range 0 to 1)
 
-
-
-    void Awake()
-    {
-
+    void Awake(){
         amplitudeModulationOscillator = new SineHP();
         frequencyModulationOscillator = new SineHP();
 
@@ -103,60 +95,35 @@ public class Oscillator : MonoBehaviour
         _FS = AudioSettings.outputSampleRate;
         // Calculate how long each sample lasts
         _sampleDuration = 1.0 / _FS;
-
     }
 
-
-
-    void Start()
-    {
-
+    void Start(){
         sinWeight = 0.75;
         sqrWeight = 0.25;
         sawWeight = 0.25;
 
-
-        if (_GM.isActive)
-        {
+        if (_GM.isActive){
             volume = volumeValue;
         }
-        else
-        {
-            volume  = 0.0f;           //in teoria -inf
+        else{
+            volume  = 0.0f;
         }
         changeNote(_GM.indexPlayingNote);
-
     }
 
-
-
-    void FixedUpdate()
-    {
-
-        if (_GM.isActive)
-        {
-            volume = volumeValue;              /*questo valore si potrebbe moltiplicare per qualche valore scalato che rappresenti la distanza 
-                                         * delle mani dal leap, così da dare espressività al suono
-                                         * 
-                                         */
+    void FixedUpdate(){
+        if (_GM.isActive){
+            volume = volumeValue;        /*this value could be multiplied by some scaled value representing the distance
+                                         * of the hands from the leap, so as to give expressiveness to the sound */
         }
-        else
-        {
-            volume = 0.0f;           //in teoria -inf
+        else{
+            volume = 0.0f;
         }
-
         changeNote(_GM.indexPlayingNote);
-        //Debug.Log(frequency);
-
-
-
     }
 
-
-    void changeNote(int noteIndex)
-    {
-        switch (noteIndex)                  //sostituire con qualche design pattern?
-        {
+    void changeNote(int noteIndex){
+        switch (noteIndex){
             case 0:     //C4
                 frequency = frequencies[0];
                 break;
@@ -233,15 +200,9 @@ public class Oscillator : MonoBehaviour
                 Debug.Log("Default case");
                 break;
         }
-
     }
 
-
-
-
-
-    void OnAudioFilterRead(float[] data, int channels)
-    {
+    void OnAudioFilterRead(float[] data, int channels){
 
         /* 
          * This is "the current time of the audio system", as given
@@ -256,8 +217,7 @@ public class Oscillator : MonoBehaviour
         //currentDspTime = AudioSettings.dspTime;
 
         // goes through data chunk
-        for (int i = 0; i < data.Length; i += channels)
-        {
+        for (int i = 0; i < data.Length; i += channels){
             /*
              * Sample duration is just 1/fs. Because dspTime isn't updated every
              * sample, we "update" it ourselves so our envelope sounds smooth.
@@ -268,24 +228,18 @@ public class Oscillator : MonoBehaviour
             // lets you modulate the frequency
             double currentFreq = frequency;
 
-
-
             // Applies Frequency Modulation
-            if (useFrequencyModulation)
-            {
+            if (useFrequencyModulation){
                 phaseIncrementFM = (frequencyModulationOscillatorFrequency) * 2.0 * Mathf.PI / _FS;
                 phaseFM += phaseIncrementFM;
-                if (phaseFM > (Mathf.PI * 2))
-                {
+                if (phaseFM > (Mathf.PI * 2)){
                     phaseFM = phaseFM % (Mathf.PI * 2);
                 }
-
                 double freqOffset = (frequencyModulationOscillatorIntensity * frequency * 0.75) / 100.0;
                 currentFreq += mapValueD(SineHP.Sin((float)phaseFM), -1.0, 1.0, -freqOffset, freqOffset);
                 frequencyModulationRangeOut = (float)SineHP.Sin((float)phaseFM) * 0.5f + 0.5f;
             }
-            else
-            {
+            else{
                 frequencyModulationRangeOut = 0.0f;
             }
 
@@ -306,8 +260,7 @@ public class Oscillator : MonoBehaviour
 
             phaseIncrement = (currentFreq * octave) * 2.0 * Mathf.PI / _FS;
             phase += phaseIncrement;
-            if (phase > (Mathf.PI * 2))
-            {
+            if (phase > (Mathf.PI * 2)){
                 phase = phase % (Mathf.PI * 2);
             }
 
@@ -324,26 +277,16 @@ public class Oscillator : MonoBehaviour
             // Adds sawtooth wave to the next output sample
             sawOutput = (float)sawWeight - (float)(sawWeight / Mathf.PI * phase);
 
-            // nextOutput += (float)(sawWeight * ((phase) / (2 * Mathf.PI)));
-
-
-
             // Adds square wave to the next output sample         
-            if (phase > Mathf.PI)
-            {
+            if (phase > Mathf.PI){
                 sqrOutput = (float)(sqrWeight);
-                //nextOutput += (float) (sqrWeight ) ;
             }
-            else
-            {
+            else{
                 sqrOutput = (-(float)(sqrWeight));
-                //nextOutput += (-(float) ( sqrWeight) ) ;
             }
-
 
             // Adds noise wave to the next output sample    
             noiseOutput = PinkNoise.Noise();
-
 
             /*      Mixa tutti gli output
                    http://www.vttoth.com/CMS/index.php/technical-notes/68
@@ -360,7 +303,7 @@ public class Oscillator : MonoBehaviour
             nextOutput = sinOutput + sawOutput + sqrOutput - (sinOutput * sawOutput) -
                                     (sinOutput * sqrOutput) - (sawOutput * sqrOutput) + (sinOutput * sawOutput * sqrOutput);
 
-            nextOutput += noiseOutput * (float)noiseWeight;      //da cambiare
+            nextOutput += noiseOutput * (float)noiseWeight;
 
             /*
              * Here we apply a single-pole low-pass filter. Even if the filter
@@ -371,12 +314,8 @@ public class Oscillator : MonoBehaviour
 
             nextOutput = nextOutput * 0.5f * volume;
 
-
-
-
             // Applies Amplitude Modulation
-            if (useAmplitudeModulation)
-            {
+            if (useAmplitudeModulation){
                 phaseIncrementAM = (amplitudeModulationOscillatorFrequency) * 2.0 * Mathf.PI / _FS;
                 phaseAM += phaseIncrementAM;
                 if (phaseAM > (Mathf.PI * 2))
@@ -386,13 +325,9 @@ public class Oscillator : MonoBehaviour
                 nextOutput *= (float)mapValueD(SineHP.Sin((float)phaseAM), -1.0, 1.0, 0.0, 1.0);
                 amplitudeModulationRangeOut = (float)SineHP.Sin((float)phaseAM) * 0.5f + 0.5f;
             }
-            else
-            {
+            else{
                 amplitudeModulationRangeOut = 0.0f;
             }
-
-
-
 
             // Write the output to the audio filter
             data[i] += nextOutput;
@@ -403,59 +338,45 @@ public class Oscillator : MonoBehaviour
             // Copy the sound from one channel into the next channel for stereo
             if (channels == 2) data[i + 1] = data[i];
         }
-
     }
 
-
-    public void ChangeSinWeight(float weight)
-    {
+    public void ChangeSinWeight(float weight){
         sinWeight = weight;
     }
 
-    public void ChangeSqrWeight(float weight)
-    {
+    public void ChangeSqrWeight(float weight){
         sqrWeight = weight;
     }
 
-    public void ChangeSawWeight(float weight)
-    {
+    public void ChangeSawWeight(float weight){
         sawWeight = weight;
     }
 
-    public void ChangeLowPass(float value)
-    {
+    public void ChangeLowPass(float value){
         lowPass = value;
     }
 
-
-
-
     //pink noise approximation
-    public class PinkNoise
-    {
+    public class PinkNoise{
         private static System.Random rnd = new System.Random();
 
-        public static float Noise()
-        {
+        public static float Noise(){
             return (float)rnd.NextDouble();
         }
     }
 
-    // High percision sine approximation
-    public class SineHP
-    {
+    // High precision sine approximation
+    public class SineHP{
         private static float sin = 0;
 
-        public static float Sin(float x)
-        {
+        public static float Sin(float x){
             if (x < -3.14159265f)
                 x += 6.28318531f;
             else
                 if (x > 3.14159265f)
                 x -= 6.28318531f;
 
-            if (x < 0)
-            {
+            if (x < 0){
                 sin = x * (1.27323954f + 0.405284735f * x);
 
                 if (sin < 0)
@@ -463,8 +384,7 @@ public class Oscillator : MonoBehaviour
                 else
                     sin = sin * (0.255f * (sin - 1) + 1);
             }
-            else
-            {
+            else{
                 sin = x * (1.27323954f - 0.405284735f * x);
 
                 if (sin < 0)
@@ -472,21 +392,18 @@ public class Oscillator : MonoBehaviour
                 else
                     sin = sin * (0.255f * (sin - 1) + 1);
             }
-
             return sin;
         }
 
 
-        public float CalculateSin(float x)
-        {
+        public float CalculateSin(float x){
             if (x < -3.14159265f)
                 x += 6.28318531f;
             else
                 if (x > 3.14159265f)
                 x -= 6.28318531f;
 
-            if (x < 0)
-            {
+            if (x < 0){
                 sin = x * (1.27323954f + 0.405284735f * x);
 
                 if (sin < 0)
@@ -494,8 +411,7 @@ public class Oscillator : MonoBehaviour
                 else
                     sin = sin * (0.255f * (sin - 1) + 1);
             }
-            else
-            {
+            else{
                 sin = x * (1.27323954f - 0.405284735f * x);
 
                 if (sin < 0)
@@ -503,53 +419,40 @@ public class Oscillator : MonoBehaviour
                 else
                     sin = sin * (0.255f * (sin - 1) + 1);
             }
-
             return sin;
         }
-
     }
 
-
-    public void OctaveUp()
-    {
+    public void OctaveUp(){
         octaveNumber += 1;
         UpdateOctaveNumber();
 
-        for (int i = 0; i < frequencies.Length; i++)
-        {
+        for (int i = 0; i < frequencies.Length; i++){
             frequencies[i] *= 2;
         }
     }
 
-    public void OctaveDown()
-    {
+    public void OctaveDown(){
         octaveNumber -= 1;
         UpdateOctaveNumber();
 
-        for (int i = 0; i < frequencies.Length; i++)
-        {
+        for (int i = 0; i < frequencies.Length; i++){
             frequencies[i] /= 2;
         }
     }
 
-    public void UpdateOctaveNumber()
-    {
+    public void UpdateOctaveNumber(){
         var text = GameObject.Find("NumeroOttava").GetComponent<UnityEngine.UI.Text>();
         text.text = "C" + (octaveNumber) + " - C" + (octaveNumber + 1);
-
     }
 
-
-    //These functions scale floats and double values from one range to another 
-
-    float mapValue(float referenceValue, float fromMin, float fromMax, float toMin, float toMax)
-    {
+    //These functions scale floats and double values from one range to another
+    float mapValue(float referenceValue, float fromMin, float fromMax, float toMin, float toMax){
         /* This function maps (converts) a Float value from one range to another */
         return toMin + (referenceValue - fromMin) * (toMax - toMin) / (fromMax - fromMin);
     }
 
-    double mapValueD(double referenceValue, double fromMin, double fromMax, double toMin, double toMax)
-    {
+    double mapValueD(double referenceValue, double fromMin, double fromMax, double toMin, double toMax){
         /* This function maps (converts) a Double value from one range to another */
         return toMin + (referenceValue - fromMin) * (toMax - toMin) / (fromMax - fromMin);
     }

@@ -1,7 +1,7 @@
 import Leap
 import math
 import sys
-from predict import load_utils, predict
+from predict import load_utils, make_prediction
 import pandas as pd
 
 
@@ -15,25 +15,37 @@ class LeapEventListener(Leap.Listener):
         print("Leap Motion disconnected")
 
     def on_frame(self, controller):
+
+        connected_devices = len(controller.devices)
+        print("Connected devices: " + connected_devices)
+
         frame = controller.frame()
 
-        if not frame.hands.is_empty:
-            features_values_left = []
-            features_values_right = []
+        features_values_left = []
+        features_values_right = []
+        features_values = []
 
-            for hand in frame.hands:
-                if len(frame.hands) == 2:
+        # Scan all connected devices
+        for device in controller.devices:
+            # Get only hands of a specific device
+            hands = [hand for hand in frame.hands if hand.device == device]
+            # Check for each device connected if there are two hands
+            if len(hands) == 2:
+                for hand in hands:
                     if hand.is_left:
                         features_values_left = get_features(features_values_left, hand)
                     elif hand.is_right:
                         features_values_right = get_features(features_values_right, hand)
 
-            features_values = features_values_left + features_values_right
-            if len(features_values) != 0:
-                # Predict
-                features_values = pd.Series(features_values)
-                prediction = predict(features_values)
-                print(prediction)
+                features_values_tmp = features_values_left + features_values_right
+                features_values += features_values_tmp
+
+        # Perform prediction only when we have 36 features
+        if len(features_values) != 0 and len(features_values) == 36 :
+            # Predict
+            features_values = pd.Series(features_values)
+            prediction = make_prediction(features_values)
+            print(prediction)
 
 
 # This function take in input a hand and compute two values: FF and NFA

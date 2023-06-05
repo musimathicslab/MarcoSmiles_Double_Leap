@@ -45,7 +45,7 @@ def compute_min_max(features, min_values, max_values):
     return scaled_features
 
 
-def predict(new_data_x):
+def make_prediction(new_data_x):
     global model, lbl_notes, min_values, max_values
 
     # Normalize data
@@ -58,7 +58,7 @@ def predict(new_data_x):
     # Input note encoded -> [0,4,1,2,3,5,7,6,8] = [Do,Mi, Do#, Re, Re#, ...]
     # Output model->[0,1,2,3,4,5,6,7]
     prediction = model.predict(new_data_reshaped)
-
     decoded_prediction = lbl_notes[prediction[0]]
+
     return decoded_prediction
 

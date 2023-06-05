@@ -62,3 +62,41 @@
      ```
     LD_PRELOAD=./libLeap.so MarcoSmiles5.0 Sample.py
      ```
+   
+## Create/Modify DLL for MidiLib
+   
+1. Install Visual Studio 
+2. Create a new project of type Class Library(.NET Standard).
+3. Copy and paste the content of the file `Midi_Library_File.cs`.
+4. Build the project and locate the dll created (the path can be found in the output console).
+5. Install  [pythonnet](https://github.com/pythonnet/pythonnet) with the following command.
+     ```
+    pip install pythonnet
+     ```
+6. Paste it in the dlls folder
+7. You can use it in a Python script in this way.
+     ```
+   import clr
+   clr.AddReference('dlls/MidiLib')
+   from MidiLib import MidiClass
+   ```  
+   Where MidiLib is the name of the dll file (_and of the namespace_) and MidiClass is the name of the class that uyou want to import:
+8. At this point u can istantiate an object of that class in this way and access to all the public methods.
+   ```    
+   Midi = MidiClass()
+   ``` 
+   
+   
+### Using MidiClass
+MidiCLass offer 2 method:
+1. `FindMidi()` that allow to retrieve the MIDI port of MarcoSmiles and return an object of the type `OutputDevice`.
+
+
+2. `SendEvent(int note,int octave,OutputDevice outDev, string command)` that allow to send note_on/note_off message on a MIDI output port:
+   1. note --> 0 to 24 (_represent the key pressed on a piano keyboard of 24 keys_) 
+   2. octave --> 0 to 9 (_represent the starting octave_)
+   3. outDev --> (_represent the midi output device to wich you want to send the message_)
+   4. command --> on/off (_represent the command of note_on/note_off_)
+
+In order to use this class you need to create a virtual port named _MarcoSmiles_ on LoopMidi software.
+you can check if it is working correctly using a DAW (for example [FLStudio](https://www.image-line.com/)), selecting the MarcoSmiles MIDI port and running the script Dlltest.py

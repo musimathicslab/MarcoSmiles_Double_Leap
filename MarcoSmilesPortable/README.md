@@ -14,7 +14,7 @@ _References: https://support.leapmotion.com/hc/en-us/articles/360004362237-Gener
 1. Download the kit from this [link](https://api.leapmotion.com/v2?id=skeletal-beta&platform=windows&version=2.3.1.31549).
 2. Install the `.exe` file in the folder.
 3. Since the LeapSDK does not currently support Python3, we have to compile the library with our version of Python. _N.B It only works with the version of Python used during compilation._
-To do that execute the following steps:
+To do that execute the following steps, otherwise if you want to use python 3.7 go directly to step 10 and download those files from the `MarcoSmilesPortable` folder.
    1. Install Visual Studio 2019 (with Desktop development with C++ workload) and [Swig 3.0.3](https://www.swig.org/download.html). To work with swig create a Path system variable. 
    2. Create an empty C++ project. Copy `Leap.h`, `LeapMath.h`, `Leap.i`, and `Leap.lib` (x64) into this project folder.
    3. Run SWIG from that folder to generate `LeapPython.cpp`.
@@ -35,38 +35,33 @@ To do that execute the following steps:
 
 ## Create/Modify DLL for MidiLib
    
-1. Install Visual Studio 
-2. Create a new project of type Class Library(.NET Standard).
-3. Copy and paste the content of the file `Midi_Library_File.cs`.
+1. Install Visual Studio.
+2. Create a new project of type `Class Library(.NET Standard)`.
+3. Copy and paste the content of the file `Midi_Library_File.cs` placed in `MarcoSmilesPortable/dlls`.
 4. Build the project and locate the dll created (the path can be found in the output console).
-5. Install  [pythonnet](https://github.com/pythonnet/pythonnet) with the following command.
+5. Install [pythonnet](https://github.com/pythonnet/pythonnet) with the following command.
      ```
     pip install pythonnet
      ```
-6. Paste it in the dlls folder
+6. Copy the `MidiLib.dll` in the `MarcoSmilesPortable/dlls` folder. 
 7. You can use it in a Python script in this way.
      ```
    import clr
    clr.AddReference('dlls/MidiLib')
    from MidiLib import MidiClass
    ```  
-   Where MidiLib is the name of the dll file (_and of the namespace_) and MidiClass is the name of the class that uyou want to import:
-8. At this point u can istantiate an object of that class in this way and access to all the public methods.
+   Where MidiLib is the name of the dll file (_and of the namespace_) and MidiClass is the name of the class that you want to import.
+8. At this point you can instantiate an object of that class in this way and access to all the public methods.
    ```    
    Midi = MidiClass()
-   ``` 
-   
-   
-### Using MidiClass
-MidiCLass offer 2 method:
-1. `FindMidi()` that allow to retrieve the MIDI port of MarcoSmiles and return an object of the type `OutputDevice`.
+   ```
+   MidiClass offer two methods:
+   1. `FindMidi()` that allow to retrieve the MIDI port of MarcoSmiles and return an object of the type `OutputDevice`.
+   2. `SendEvent(int note,int octave,OutputDevice outDev, string command)` that allow to send note_on/note_off message on a MIDI output port:
+      1. note --> 0 to 24 (_represent the key pressed on a piano keyboard of 24 keys_) 
+      2. octave --> 0 to 9 (_represent the starting octave_)
+      3. outDev --> (_represent the midi output device to wich you want to send the message_)
+      4. command --> on/off (_represent the command of note_on/note_off_)
 
-
-2. `SendEvent(int note,int octave,OutputDevice outDev, string command)` that allow to send note_on/note_off message on a MIDI output port:
-   1. note --> 0 to 24 (_represent the key pressed on a piano keyboard of 24 keys_) 
-   2. octave --> 0 to 9 (_represent the starting octave_)
-   3. outDev --> (_represent the midi output device to wich you want to send the message_)
-   4. command --> on/off (_represent the command of note_on/note_off_)
-
-In order to use this class you need to create a virtual port named _MarcoSmiles_ on LoopMidi software.
-you can check if it is working correctly using a DAW (for example [FLStudio](https://www.image-line.com/)), selecting the MarcoSmiles MIDI port and running the script Dlltest.py
+   In order to use this class you need to create a virtual port named `MarcoSmiles` on LoopMidi software.
+   You can check if it is working correctly using a DAW (for example [FLStudio](https://www.image-line.com/)), selecting the MarcoSmiles MIDI port and running the script Dlltest.py.

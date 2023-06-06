@@ -34,6 +34,7 @@ To do that execute the following steps, otherwise if you want to use python 3.7 
 
 
 ## Create/Modify DLL for MidiLib
+This section is useful for creating a customised Midi library. If you do not want to modify the version we created, you can find the result of the next steps in `MarcoSmilesPortable/ddls`.
    
 1. Install Visual Studio.
 2. Create a new project of type `Class Library(.NET Standard)`.

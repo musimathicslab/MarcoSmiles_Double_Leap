@@ -1,11 +1,12 @@
-# Installation on RaspberryPi 3
+# Installation on Mini PC Windows
 
 *N.B. This section is for developers only!*
 
-- [Python 3.8]( https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/?utm_content=cmp-true);
-  - numpy 1.24.3;
-  - pandas 2.0.2;
-
+- Python 3.7.9;
+  - numpy 1.18.0;
+  - pandas 1.1.4;
+  - [pythonnet](https://github.com/pythonnet/pythonnet).
+- [LoopMidi](https://www.tobias-erichsen.de/software/loopmidi.html). Create a virtual MIDI port with the name `MarcoSmiles` (it's essential to give this name to the port in order to give the possibility to the MIDI management module to find this virtual MIDI port).
 
 ## How to use Leap Developer Kit 2.3.1+31549 Windows
 
@@ -29,10 +30,7 @@ To do that execute the following steps, otherwise if you want to use python 3.7 
    9. Rename the output `LeapPython.dll` to `LeapPython.pyd`.
    10. Finally, you can copy the files `LeapPython.pyd`, `Leap.py` and `Leap.dll` in a new folder to use them in any project.
 
-
-
-
-
+   
 ## Create/Modify DLL for MidiLib
 This section is useful for creating a customised Midi library. If you do not want to modify the version we created, you can find the result of the next steps in `MarcoSmilesPortable/ddls`.
    
@@ -40,19 +38,15 @@ This section is useful for creating a customised Midi library. If you do not wan
 2. Create a new project of type `Class Library(.NET Standard)`.
 3. Copy and paste the content of the file `Midi_Library_File.cs` placed in `MarcoSmilesPortable/dlls`.
 4. Build the project and locate the dll created (the path can be found in the output console).
-5. Install [pythonnet](https://github.com/pythonnet/pythonnet) with the following command.
-     ```
-    pip install pythonnet
-     ```
-6. Copy the `MidiLib.dll` in the `MarcoSmilesPortable/dlls` folder. 
-7. You can use it in a Python script in this way.
+5. Copy the `MidiLib.dll` in the `MarcoSmilesPortable/dlls` folder. 
+6. You can use it in a Python script in this way.
      ```
    import clr
    clr.AddReference('dlls/MidiLib')
    from MidiLib import MidiClass
    ```  
    Where MidiLib is the name of the dll file (_and of the namespace_) and MidiClass is the name of the class that you want to import.
-8. At this point you can instantiate an object of that class in this way and access to all the public methods.
+7. At this point you can instantiate an object of that class in this way and access to all the public methods.
    ```    
    Midi = MidiClass()
    ```
@@ -61,8 +55,19 @@ This section is useful for creating a customised Midi library. If you do not wan
    2. `SendEvent(int note,int octave,OutputDevice outDev, string command)` that allow to send note_on/note_off message on a MIDI output port:
       1. note --> 0 to 24 (_represent the key pressed on a piano keyboard of 24 keys_) 
       2. octave --> 0 to 9 (_represent the starting octave_)
-      3. outDev --> (_represent the midi output device to wich you want to send the message_)
+      3. outDev --> (_represent the midi output device to which you want to send the message_)
       4. command --> on/off (_represent the command of note_on/note_off_)
 
    In order to use this class you need to create a virtual port named `MarcoSmiles` on LoopMidi software.
    You can check if it is working correctly using a DAW (for example [FLStudio](https://www.image-line.com/)), selecting the MarcoSmiles MIDI port and running the script Dlltest.py.
+
+
+## Use MarcoSmiles Portable
+1. Download the portable version of MarcoSmiles placed in `MarcoSmilesPortable`.
+2. Go into your terminal and execute the following instructions:
+   ```
+   cd MarcoSmilesPortable
+   ```
+   ```
+   python LeapEventListener.py
+   ```

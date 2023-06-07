@@ -30,6 +30,8 @@ public class DatasetHandler : MonoBehaviour
         return grads(Vector3.Angle(f1.Direction, f2.Direction));
     }
 
+    #endregion
+
     /// <summary>
     /// Float to grads conversion.
     /// </summary>

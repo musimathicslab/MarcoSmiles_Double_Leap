@@ -3,21 +3,21 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Number of recording for each position.
-/// </summary>
-const int RECORD_COUNT_DEF = 500;
-
-/// <summary>
-/// Start recording countdown.
-/// </summary>
-const int COUNT_DEF = 3;
 
 /// <summary>
 /// Training process.
 /// </summary>
-public class TrainingScript : MonoBehaviour
-{
+public class TrainingScript : MonoBehaviour{
+    /// <summary>
+    /// Number of recording for each position.
+    /// </summary>
+    const int RECORD_COUNT_DEF = 500;
+
+    /// <summary>
+    /// Start recording countdown.
+    /// </summary>
+    const int COUNT_DEF = 3;
+
     /// <summary>
     /// TextBox countdown.
     /// </summary>
@@ -97,21 +97,6 @@ public class TrainingScript : MonoBehaviour
 
 
     /// <summary>
-    /// Start coroutine for position registration.
-    /// </summary>
-    public void Trainer(){
-
-        if(!counting_flag){
-            count = COUNT_DEF + 1;
-            record_count = RECORD_COUNT_DEF;
-
-            StartCoroutine(Waiter());
-            counting_flag = true;
-        }
-    }
-
-
-    /// <summary>
     /// Countdown to start position registration.
     /// </summary>
     /// <returns>yield</returns>
@@ -166,6 +151,21 @@ public class TrainingScript : MonoBehaviour
             GameObject Button = GameObject.Find("SaveButton");
             Button.GetComponent<MeshRenderer>().material = TGreen;
             Button.GetComponent<Light>().range = 0;
+        }
+    }
+
+
+    /// <summary>
+    /// Start coroutine for position registration.
+    /// </summary>
+    public void Trainer(){
+
+        if(!counting_flag){
+            count = COUNT_DEF + 1;
+            record_count = RECORD_COUNT_DEF;
+
+            StartCoroutine(Waiter());
+            counting_flag = true;
         }
     }
 

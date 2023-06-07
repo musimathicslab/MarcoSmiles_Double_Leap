@@ -26,13 +26,15 @@ This section is useful for creating a customised Midi library. If you do not wan
 4. Build the project and locate the dll created (the path can be found in the output console).
 5. Copy the `MidiLib.dll` in the `MarcoSmilesPortable/dlls` folder. 
 6. You can use it in a Python script in this way.
-     ```
+      
+   ```
    import clr
    clr.AddReference('dlls/MidiLib')
    from MidiLib import MidiClass
    ```  
    Where MidiLib is the name of the dll file (_and of the namespace_) and MidiClass is the name of the class that you want to import.
 7. At this point you can instantiate an object of that class in this way and access to all the public methods.
+   
    ```    
    Midi = MidiClass()
    ```
@@ -51,6 +53,7 @@ This section is useful for creating a customised Midi library. If you do not wan
 ## Use MarcoSmiles Portable
 1. Download the portable version of MarcoSmiles placed in `MarcoSmilesPortable`.
 2. Go into your terminal and execute the following instructions:
+   
    ```
    cd MarcoSmilesPortable
    ```

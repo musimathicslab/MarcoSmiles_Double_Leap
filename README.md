@@ -5,16 +5,17 @@ In particular, by using a gesture recognition module to associate hand positions
 
 <br><br>
 *New features compared to version 4.0:*
-- *Possibility to use the system (Play phase only) with a RaspberryPi. This function allows you to use it without the need for a computer, thus guaranteeing portability;*
-- *Ability of the system to understand whether you are using a Leap Motion or two;*
+- *Possibility to use the system (Play phase only) with a Mini PC Windows. This function allows you to use it without the need for a computer, thus guaranteeing portability. At the moment it's possible only to use a single Leap Motion configuration.*
+- *Fix bugs*.
+
 
 ## Prerequisites
 On the Windows computer:
-- Python 3.7.9;
-  - pandas 1.1.4;
-  - numpy 1.18.0;
-  - scikit-learn 0.23.2;
-  - matplotlib 3.3.3;
+- Python 3.9.13;
+  - numpy 1.24.3;
+  - pandas 2.0.2;
+  - scikit-learn 1.2.2;
+  - matplotlib 3.7.1;
 - [LeapMotion SDK v5.12](https://developer.leapmotion.com/tracking-software-download);
 - [LoopMidi](https://www.tobias-erichsen.de/software/loopmidi.html). Create a virtual MIDI port with the name `MarcoSmiles` (it's essential to give this name to the port in order to give the possibility to the MIDI management module to find this virtual MIDI port).
 

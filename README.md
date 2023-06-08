@@ -24,6 +24,19 @@ You also need to use a Windows Mini PC. If you do not have one already configure
 
 
 
+### Export dataset
+
+To export a dataset u need to navigate to the main menu page and press "_export dataset_". At this point select the desired dataset and save it. Then you can use it into MarcoSmiles5.0 or into MarcoSmiles Portable.
+
+#### Import in MarcoSmiles5.0
+Navigate to the main scene and select import dataset. Choose the dataset you wish to import and confirm. (_You can check the dataset you are using on the main page_)
+
+
+
+
+#### Import in MarcoSmiles Portable 
+Access the utils folder and copy and paste the dataset you want to use. This must be done before using MarcoSmiles Portable so that the dataset can be processed by the system.
+
 
 ## Developed by
 [Salerno Daniele](https://github.com/DanieleSalerno)<br>

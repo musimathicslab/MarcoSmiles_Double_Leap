@@ -47,7 +47,9 @@ public class TrainingScript : MonoBehaviour{
     /// <summary>
     ///Event on each frame.
     /// </summary>
-    private void FixedUpdate(){}
+    private void FixedUpdate(){
+
+    }
 
     /// <summary>
     /// Start recording countdown.
@@ -86,87 +88,6 @@ public class TrainingScript : MonoBehaviour{
     /// <param name="note_id"></param>
     public void ChangeNoteId(int note_id){
         currentNoteId = note_id;
-    }
-
-
-    public async Task<bool> RemoveNote(){
-        await FileUtils.DeleteRowsNote(currentNoteId);
-        return true;
-    }
-
-
-
-    /// <summary>
-    /// Countdown to start position registration.
-    /// </summary>
-    /// <returns>yield</returns>
-    IEnumerator Waiter(){
-        if (count > 0){
-            count--;
-            countDown_Text.text = count.ToString();
-            position_Text.text = text1;
-
-            //  sleep (1 second)
-            yield return new WaitForSeconds(1);
-
-            //  Repeat the coroutine
-            StartCoroutine(Waiter());
-        }else{
-            //  Countdown ended
-            counting_flag = false;
-
-            // Start Coroutine to save positions
-            StartCoroutine(WaiterRecording());
-        }
-    }
-
-   
-
-    /// <summary>
-    /// Manages the Coroutine that records the current position.
-    /// </summary>
-    /// <returns>yield</returns>
-    IEnumerator WaiterRecording(){
-        if (record_count > 0){
-            record_count--;
-            recording_Text.text = record_count.ToString();
-            position_Text.text = text2;
-
-            //  Sleep (125 ms)
-            yield return new WaitForSeconds(0.125f);
-
-            //  Add current position in the list
-            DataSelector();
-
-            //  Restart coroutine so save positions
-            StartCoroutine(WaiterRecording());
-        }else{
-            //  Registration ended
-            recording_flag = false;
-
-            //  Create the dataset
-            FileUtils.Save(_GM.list_posizioni);
-
-            Material TGreen = Resources.Load("TransparentGreen", typeof(Material)) as Material;
-            GameObject Button = GameObject.Find("SaveButton");
-            Button.GetComponent<MeshRenderer>().material = TGreen;
-            Button.GetComponent<Light>().range = 0;
-        }
-    }
-
-
-    /// <summary>
-    /// Start coroutine for position registration.
-    /// </summary>
-    public void Trainer(){
-
-        if(!counting_flag){
-            count = COUNT_DEF + 1;
-            record_count = RECORD_COUNT_DEF;
-
-            StartCoroutine(Waiter());
-            counting_flag = true;
-        }
     }
 
     /// <summary>
@@ -230,5 +151,82 @@ public class TrainingScript : MonoBehaviour{
             DatasetHandler.getNFA(_GM.secondDeviceHand_R.Fingers[3], _GM.secondDeviceHand_R.Fingers[4]));
 
         _GM.list_posizioni.Add(new Position(left_hand: left_hand1, right_hand: right_hand1, left_hand2: left_hand2, right_hand2: right_hand2, id: currentNoteId));
+    }
+
+
+    public async Task<bool> RemoveNote(){
+        await FileUtils.DeleteRowsNote(currentNoteId);
+        return true;
+    }
+
+
+    /// <summary>
+    /// Countdown to start position registration.
+    /// </summary>
+    /// <returns>yield</returns>
+    IEnumerator Waiter(){
+        if (count > 0){
+            count--;
+            countDown_Text.text = count.ToString();
+            position_Text.text = text1;
+
+            //  sleep (1 second)
+            yield return new WaitForSeconds(1);
+
+            //  Repeat the coroutine
+            StartCoroutine(Waiter());
+        }else{
+            //  Countdown ended
+            counting_flag = false;
+
+            // Start Coroutine to save positions
+            StartCoroutine(WaiterRecording());
+        }
+    }
+
+    /// <summary>
+    /// Start coroutine for position registration.
+    /// </summary>
+    public void Trainer(){
+
+        if(!counting_flag){
+            count = COUNT_DEF + 1;
+            record_count = RECORD_COUNT_DEF;
+
+            StartCoroutine(Waiter());
+            counting_flag = true;
+        }
+    }
+
+    /// <summary>
+    /// Manages the Coroutine that records the current position.
+    /// </summary>
+    /// <returns>yield</returns>
+    IEnumerator WaiterRecording(){
+        if (record_count > 0){
+            record_count--;
+            recording_Text.text = record_count.ToString();
+            position_Text.text = text2;
+
+            //  Sleep (125 ms)
+            yield return new WaitForSeconds(0.125f);
+
+            //  Add current position in the list
+            DataSelector();
+
+            //  Restart coroutine so save positions
+            StartCoroutine(WaiterRecording());
+        }else{
+            //  Registration ended
+            recording_flag = false;
+
+            //  Create the dataset
+            FileUtils.Save(_GM.list_posizioni);
+
+            Material TGreen = Resources.Load("TransparentGreen", typeof(Material)) as Material;
+            GameObject Button = GameObject.Find("SaveButton");
+            Button.GetComponent<MeshRenderer>().material = TGreen;
+            Button.GetComponent<Light>().range = 0;
+        }
     }
 }

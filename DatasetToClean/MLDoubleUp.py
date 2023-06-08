@@ -405,7 +405,7 @@ classificatore_1H.fit(train_scaled_D_1H, training_set_labels_1H)
 '''
 n_notes = len(set(training_set_labels))
 l_original = l_enc.inverse_transform(np.arange(n_notes))
-with open('lbl_notes.txt', 'w') as fw:       # new line \n identifica l'inizio di un nuovo layer
+with open('lbl_notes_old.txt', 'w') as fw:       # new line \n identifica l'inizio di un nuovo layer
     for note in l_original:
         print(str(note))
         print("\n")

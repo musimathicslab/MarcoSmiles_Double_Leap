@@ -1,7 +1,7 @@
 import Leap
 import math
 import sys
-from predict import load_utils, make_prediction
+from predict import load_utils, make_prediction, clean_dataset_dir
 import pandas as pd
 from midiUtils import sendMidi
 
@@ -78,9 +78,14 @@ def grads(num):
 
 
 def main():
+
+    # Remove unwanted files from Exported dataset
+    clean_dataset_dir()
+
+    # Load all files used in prediction phase
     load_utils()
 
-    # Create a listener and controller
+    # Create a listener and controller for Leap Motion
     listener = LeapEventListener()
     controller = Leap.Controller()
 

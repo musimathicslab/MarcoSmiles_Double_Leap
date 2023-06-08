@@ -1,22 +1,36 @@
 import pickle
-
+import os
 import numpy as np
-import pandas as pd
 
 model = None
 lbl_notes = None
 min_values = None
 max_values = None
 
+def clean_dataset_dir():
+    utils_folder = "utils"
+    files_to_maintain = ["min&max_values_dataset_out_1H.txt", "lbl_notes.txt", "model_1H.pkl"]
+
+    # Get file list from utils folder
+    files = os.listdir(utils_folder)
+
+    # Delete unwanted
+    for file in files:
+        if file not in files_to_maintain:
+            file_path = os.path.join(utils_folder, file)
+            os.remove(file_path)
+
 
 def load_utils():
+    clean_dataset_dir()
+
     global model, lbl_notes, min_values, max_values
 
-    model_file = 'utils/model.pkl'
+    model_file = 'utils/model_1H.pkl'
     with open(model_file, 'rb') as f:
         model = pickle.load(f)
 
-    lbl_notes_file = 'utils/lbl_notes_old.txt'
+    lbl_notes_file = 'utils/lbl_notes.txt'
     with open(lbl_notes_file, 'r') as f:
         lines = f.readlines()
         # clean the labels from new line characters
@@ -26,7 +40,7 @@ def load_utils():
 
 
 def get_min_max_from_file():
-    min_max_file = 'utils/min&max_values_dataset_out.txt'
+    min_max_file = 'utils/min&max_values_dataset_out_1H.txt'
     with open(min_max_file, 'r') as f:
         lines = f.readlines()
         # clean \n
@@ -53,7 +67,7 @@ def make_prediction(new_data_x):
     # print(new_data_scaled)
 
     new_data_reshaped = np.array(new_data_scaled).reshape(1, -1)
-    # print( new_data_reshaped)
+    # print(new_data_reshaped)
 
     # Input note encoded -> [0,4,1,2,3,5,7,6,8] = [Do,Mi, Do#, Re, Re#, ...]
     # Output model->[0,1,2,3,4,5,6,7]

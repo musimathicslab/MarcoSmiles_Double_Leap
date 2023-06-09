@@ -20,20 +20,19 @@
 
 ## Installation
 
-1. Download the project placed into the `MarcoSmiles` folder.
-2. Open Unity Hub and create an empty project called `MarcoSmiles5.0`.
-3. Download the unitypackage from this link and import it in the new project. You can do that in `Assets -> Import Package -> Custom Package`.
-4. In `Window -> Package Manager` select the `Packages: Unity Registry` and install `Magic Leap XR Plugin`.
-5. In `Edit -> Project Settings` go to `Project -> Package Manager` insert the following information in the `Scoped Registries` section:
+1. Open Unity Hub and create an empty project called `MarcoSmiles5.0`.
+2. Download the unitypackage from this link and import it in the new project. You can do that in `Assets -> Import Package -> Custom Package`.
+3. In `Window -> Package Manager` select the `Packages: Unity Registry` and install `Magic Leap XR Plugin`.
+4. In `Edit -> Project Settings` go to `Project -> Package Manager` insert the following information in the `Scoped Registries` section:
    1. Name: "Ultraleap";
    2. URL: "https://package.openupm.com";
    3. Scope(s): "com.ultraleap".
-6. Click `Save`. In `Window -> Package Manager` select the `Packages: My Registries` and install `Ultraleap Tracking`.
-7. Go into the `Project` section, and find the folder `Own/Scenes` folder. Select the `MainPage` scene, go into `File -> Build settings` and click `Add Open Scenes`. Repeat this process for each scene in this order:
+5. Click `Save`. In `Window -> Package Manager` select the `Packages: My Registries` and install `Ultraleap Tracking`.
+6. Go into the `Project` section, and find the folder `Own/Scenes` folder. Select the `MainPage` scene, go into `File -> Build settings` and click `Add Open Scenes`. Repeat this process for each scene in this order:
    1. PlayScene;
    2. TrainingScene;
    3. TestingScene. <br>
    After this step you will have the following result.<br><br><p align="center"><img src="../readme_images/build_settings.png"/></p>
-8. Change the resolution to `1280x960`.
+7. Change the resolution to `1280x960`.
 
 

@@ -7,7 +7,7 @@ lbl_notes = None
 min_values = None
 max_values = None
 
-def clean_dataset_dir():
+def clean_utils_dir():
     utils_folder = "utils"
     files_to_maintain = ["min&max_values_dataset_out_1H.txt", "lbl_notes.txt", "model_1H.pkl"]
 
@@ -22,7 +22,9 @@ def clean_dataset_dir():
 
 
 def load_utils():
-    clean_dataset_dir()
+
+    # Remove unwanted files from Exported dataset
+    clean_utils_dir()
 
     global model, lbl_notes, min_values, max_values
 

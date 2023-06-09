@@ -16,7 +16,8 @@
 - [LeapMotion SDK v5.12](https://developer.leapmotion.com/tracking-software-download);
 - [LoopMidi](https://www.tobias-erichsen.de/software/loopmidi.html). Create a virtual MIDI port with the name `MarcoSmiles` (it's essential to give this name to the port in order to give the possibility to the MIDI management module to find this virtual MIDI port);
 - [Unity Engine 2021.3.15f1](https://unity.com/download);
-- Visual Studio with the "Game development with Unity" package (during UnityEngine installation).
+- Visual Studio with the "Game development with Unity" package (during UnityEngine installation);
+- C# library Sanford.Midi.Library.
 
 ## Installation
 
@@ -34,5 +35,13 @@
    3. TestingScene. <br>
    After this step you will have the following result.<br><br><p align="center"><img src="../readme_images/build_settings.png"/></p>
 7. Change the resolution to `1280x960`.
+8. Insert your Leap Motion serials in the following way (set to lateral the serial of the Leap Motion placed HeadMounted):
+   1. Go into `TrainingScene -> LeapControllerStuff` and insert the serials in the two `ServiceProvider`.
+   <p align="center"><img src="../readme_images/sp_training.png"/></p>
+   
+   2. Go into `PlayScene -> LeapControllerStuff(1)` and insert the serials in the two `ServiceProvider`.
+   <p align="center"><img src="../readme_images/sp_play.png"/></p>
+9. To perform the build of the system, change the export resolution to `1280x960` in `File -> Build settings -> Player settings`.
+   <p align="center"><img src="../readme_images/build_setting_resolution.png"/></p>
 
 

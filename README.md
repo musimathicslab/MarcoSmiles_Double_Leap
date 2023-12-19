@@ -51,8 +51,7 @@ of the piano there are two different colored buttons:
 - the green one starts recording the hand configuration;
 - the red one deletes the last configuration acquired;
 
-To the left of the piano there are two buttons that allow you to respectively return to the Main Scene and to delete all configurations
-of the hands recorded within the current system. 
+To the left of the piano there is a button that allows you to return to the Main Scene.
 
 Centrally in the top of the interface is a blue button that has the function of starting the training.
 

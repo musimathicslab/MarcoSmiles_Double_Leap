@@ -70,7 +70,7 @@ This operation will execute the Machine Learning model, which will take time pro
 
 ### Play Scene
 <p align="center"><img src="readme_images/play_scene.png"/></p>
-You can watch a system execution here: [Watch the video](https://drive.google.com/file/d/16SmEtO0M_kDU3Nr-sK38A6QsHcirsray/view?usp=sharing)
+You can watch a system execution here: https://drive.google.com/file/d/16SmEtO0M_kDU3Nr-sK38A6QsHcirsray/view?usp=sharing
 
 The Play Scene enables musical performances using the selected system configuration. 
 As in the Training Scene, it is possible to view the user's hands in real-time.

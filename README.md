@@ -3,14 +3,14 @@ MarcoSmiles is a project born in 2016 within the Laboratory of Musimatics at the
 It offers the possibility to completely customise the way a virtual musical instrument is played with only basic hand movements. It uses two Leap Motion Controller to track the position of the user's hands and a suitably trained artificial neural network (ANN) to link that position to a note in real time.
 It also features a MIDI management module that ensures MarcoSmiles can be used with any device with a midi interface.
 <br><br>
-*New features compared to version 4.0:*
+*New features compared to MarcoSmiles Leap:*
 - *Possibility to use the system (Play phase only) with a Mini PC Windows using MarcoSmiles Portable. This function allows you to use it without the need for a computer, thus guaranteeing portability. At the moment it's possible only to use a single Leap Motion configuration;*
 - *Possibility to train the system (on MarcoSmiles5.0) with two Leap Motion Controller and simultaneously train the system for one Leap Motion Controller to use it with MarcoSmiles Portable*;
 - *Fix bugs*.
 
 
 ## How it works
-MarcoSmiles 5.0 is a desktop application with a graphical user interface. Make sure you have connected Leap Motions before starting the system.
+MarcoSmiles Double Leap is a desktop application with a graphical user interface. Make sure you have connected Leap Motions before starting the system.
 
 ### Main Scene
 <p align="center"><img src="readme_images/main_scene.png"/></p>

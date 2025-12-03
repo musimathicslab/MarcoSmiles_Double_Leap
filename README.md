@@ -1,4 +1,4 @@
-# MarcoSmiles v5.0 :musical_keyboard: :saxophone:
+# MarcoSmiles Double Leap :musical_keyboard: :saxophone:
 MarcoSmiles is a project born in 2016 within the Laboratory of Musimatics at the University of Salerno that aims to realise new Human-Computer Interaction techniques for musical performances.
 It offers the possibility to completely customise the way a virtual musical instrument is played with only basic hand movements. It uses two Leap Motion Controller to track the position of the user's hands and a suitably trained artificial neural network (ANN) to link that position to a note in real time.
 It also features a MIDI management module that ensures MarcoSmiles can be used with any device with a midi interface.

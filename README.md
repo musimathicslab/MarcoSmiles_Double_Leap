@@ -30,7 +30,7 @@ The scene also includes three other buttons: one at the top right for adding a n
 - To import the configuration in MarcoSmiles5.0 select "_import dataset_" button. Choose the dataset you wish to import and confirm. (_You can check the dataset you are using on the main page_).
 
 ### Training Scene
-<p align="center"><img src="readme_images/ANONIM_training_scene (1).png"/></p>
+<p align="center"><img src="readme_images/ANONIM_training_scene(1).png"/></p>
 
 The Training scene is dedicated to training the system in which the user can associate each note with the hand configuration they most desire.
 

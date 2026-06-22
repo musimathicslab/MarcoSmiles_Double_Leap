@@ -19,7 +19,7 @@ The Main Scene is the home page of the system. At the top is the logo of MarcoSm
 at the top right there is a button that allows access to the dataset management scene.
 
 ### Dataset scene
-<p align="center"><img src="readme_images/dataset_scene.png"/></p>
+<p align="center"><img src="readme_images/ANONIM_dataset_scene.png"/></p>
 
 The Dataset scene deals with the management of datasets and is presented through a scrollmenu that contains clickable cards. Each card is associated with a dataset present in the application and contains all the information relating to the dataset and its configurations. Furthermore, there are two buttons on each card that allow you to modify and delete its contents. By clicking on the card, you can select the dataset.
 
@@ -30,7 +30,7 @@ The scene also includes three other buttons: one at the top right for adding a n
 - To import the configuration in MarcoSmiles5.0 select "_import dataset_" button. Choose the dataset you wish to import and confirm. (_You can check the dataset you are using on the main page_).
 
 ### Training Scene
-<p align="center"><img src="readme_images/training_scene.png"/></p>
+<p align="center"><img src="readme_images/ANONIM_training_scene.png"/></p>
 
 The Training scene is dedicated to training the system in which the user can associate each note with the hand configuration they most desire.
 
@@ -69,7 +69,7 @@ When you have registered the various desired positions, press the training butto
 This operation will execute the Machine Learning model, which will take time proportional to the computational resources of the machine on which it is executed and the size of the dataset. At the end of the training, the system will allow access to the execution scene (Play Scene) and thus use the configuration just created. Finally, at the top, the outcome of the learning process will be indicated with its completion time.
 
 ### Play Scene
-<p align="center"><img src="readme_images/play_scene.png"/></p>
+<p align="center"><img src="readme_images/ANONIM_play_scene.png"/></p>
 You can watch a system execution here: https://drive.google.com/file/d/16SmEtO0M_kDU3Nr-sK38A6QsHcirsray/view?usp=sharing
 
 The Play Scene enables musical performances using the selected system configuration. 

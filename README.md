@@ -13,7 +13,7 @@ It also features a MIDI management module that ensures MarcoSmiles can be used w
 MarcoSmiles Double Leap is a desktop application with a graphical user interface. Make sure you have connected Leap Motions before starting the system.
 
 ### Main Scene
-<p align="center"><img src="readme_images/main_scene.png"/></p>
+<p align="center"><img src="readme_images/ANONYM_main_scene.png"/></p>
 The Main Scene is the home page of the system. At the top is the logo of MarcoSmiles and below it the various buttons that allow you to navigate the different screens of the system. It will not be possible to access the Play Scene (Play Scene) without having previously trained the system.
 
 at the top right there is a button that allows access to the dataset management scene.

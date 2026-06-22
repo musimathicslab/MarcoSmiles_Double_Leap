@@ -54,7 +54,7 @@ This section is useful for creating a customised Midi library. If you do not wan
 1. Download the portable version of MarcoSmiles placed in `MarcoSmilesPortable`.
 2. Import the dataset exported from MarcoSmiles5.0, pasting the exported files in the `utils` folder.
    1. Exporting the dataset from MarcoSmiles generates the following directory. Since the MarcoSmilesPortable allows the use of only one Leap Motion, MarcoSmiles5.0 trains the neural network using two Leap Motion Controllers and simultaneously with only one device. 
-   <p align="center"><img src="../readme_images/exported_dataset.png"/></p>
+   <p align="center"><img src="../readme_images/ANONIM_exported_dataset.png"/></p>
    
    Many of these files are not necessary for the operation of MarcoSmiles Portable, and it is therefore necessary to clean the directory of unused files. At system start-up, therefore, the imported dataset will be cleaned (using the `clean_utils_dir()` function in `predict.py`) leaving the following files:
    - lbl_notes.txt;
